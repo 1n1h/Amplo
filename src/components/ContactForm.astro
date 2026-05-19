@@ -1,0 +1,177 @@
+---
+// Form submits via fetch to /api/submit-lead. Until that endpoint is built,
+// the form is wired but submissions will return a network error — that is fine
+// for now while we build out the marketing UI first.
+---
+
+<form
+  id="contact-form"
+  class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-7"
+  novalidate
+>
+  <div class="field">
+    <label for="name" class="field-label">Name</label>
+    <input
+      id="name"
+      name="name"
+      type="text"
+      autocomplete="name"
+      required
+      placeholder="Your name"
+      class="field-input"
+    />
+  </div>
+
+  <div class="field">
+    <label for="email" class="field-label">Email</label>
+    <input
+      id="email"
+      name="email"
+      type="email"
+      autocomplete="email"
+      required
+      placeholder="you@company.com"
+      class="field-input"
+    />
+  </div>
+
+  <div class="field md:col-span-2">
+    <label for="mobile" class="field-label">Mobile</label>
+    <input
+      id="mobile"
+      name="mobile"
+      type="tel"
+      autocomplete="tel"
+      placeholder="+1 (555) 555-5555"
+      class="field-input"
+    />
+  </div>
+
+  <div class="field md:col-span-2">
+    <label for="message" class="field-label">Message</label>
+    <textarea
+      id="message"
+      name="message"
+      rows="6"
+      required
+      placeholder="Tell us about your project..."
+      class="field-input resize-y"></textarea>
+  </div>
+
+  <!-- Honeypot: bots typically fill all fields. Real users won't see this. -->
+  <div class="hidden" aria-hidden="true">
+    <label>Don't fill this out
+      <input name="company_website" type="text" tabindex="-1" autocomplete="off" />
+    </label>
+  </div>
+
+  <div class="md:col-span-2 flex flex-col sm:flex-row sm:items-center sm:gap-6 mt-2">
+    <button type="submit" class="btn-primary self-start" id="contact-submit">
+      Send Message
+    </button>
+    <p id="contact-status" class="text-sm text-[var(--color-text-muted)]" role="status" aria-live="polite"></p>
+  </div>
+</form>
+
+<div
+  id="contact-success"
+  hidden
+  class="mt-12 rounded-md border border-[var(--color-gold)]/40 bg-[var(--color-navy-elevated)] p-8"
+>
+  <p class="eyebrow"><span class="eyebrow-line"></span>Thank you</p>
+  <h3 class="mt-4 text-2xl md:text-3xl">We received your note.</h3>
+  <p class="mt-4 max-w-xl text-[var(--color-text-muted)]">
+    A member of the Amplo team will respond within one business day. In the
+    meantime, feel free to reach us directly at
+    <a class="underline decoration-[var(--color-gold)]/60 underline-offset-4 hover:text-[var(--color-gold)]" href="mailto:Roger@amploconsulting.com">Roger@amploconsulting.com</a>.
+  </p>
+</div>
+
+<style>
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+  }
+  .field-label {
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--color-cream);
+  }
+  .field-input {
+    width: 100%;
+    background: color-mix(in oklab, var(--color-navy-elevated) 70%, transparent);
+    border: 1px solid color-mix(in oklab, var(--color-cream) 14%, transparent);
+    border-radius: 4px;
+    padding: 0.95rem 1rem;
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    color: var(--color-cream);
+    transition: border-color 200ms ease, background 200ms ease;
+  }
+  .field-input::placeholder {
+    color: color-mix(in oklab, var(--color-text-muted) 75%, transparent);
+  }
+  .field-input:hover {
+    border-color: color-mix(in oklab, var(--color-cream) 22%, transparent);
+  }
+  .field-input:focus {
+    border-color: var(--color-gold);
+    background: color-mix(in oklab, var(--color-navy-elevated) 85%, transparent);
+    outline: none;
+  }
+</style>
+
+<script>
+  const form = document.getElementById('contact-form') as HTMLFormElement | null;
+  const status = document.getElementById('contact-status');
+  const submitBtn = document.getElementById('contact-submit') as HTMLButtonElement | null;
+  const success = document.getElementById('contact-success');
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!form || !status || !submitBtn) return;
+
+    if (!form.checkValidity()) {
+      status.textContent = 'Please fill out the required fields.';
+      status.style.color = 'var(--color-gold)';
+      form.reportValidity();
+      return;
+    }
+
+    submitBtn.disabled = true;
+    const originalLabel = submitBtn.textContent;
+    submitBtn.textContent = 'Sending...';
+    status.textContent = '';
+
+    const data = Object.fromEntries(new FormData(form).entries());
+
+    try {
+      const res = await fetch('/api/submit-lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      const json = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(json.error || `Submission failed (${res.status}).`);
+      }
+
+      form.hidden = true;
+      if (success) success.hidden = false;
+    } catch (err) {
+      console.error(err);
+      status.textContent =
+        err instanceof Error
+          ? err.message
+          : 'Something went wrong. Please try again or email us directly.';
+      status.style.color = 'var(--color-gold)';
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalLabel;
+    }
+  });
+</script>

@@ -1,0 +1,32 @@
+---
+import Eyebrow from './Eyebrow.astro';
+import ContactForm from './ContactForm.astro';
+---
+
+<section id="contact" class="py-24 md:py-40">
+  <div class="container-site max-w-4xl">
+    <div class="text-center">
+      <div class="fade-up">
+        <Eyebrow label="Let's Begin" variant="flanked" align="center" />
+      </div>
+
+      <h2
+        class="fade-up mt-8 text-[clamp(2rem,5vw,3.5rem)] leading-[1.08]"
+        style="transition-delay: 60ms;"
+      >
+        Ready to architect your <em>next chapter?</em>
+      </h2>
+
+      <p
+        class="fade-up mx-auto mt-6 max-w-xl text-base md:text-lg text-[var(--color-text-muted)]"
+        style="transition-delay: 120ms;"
+      >
+        Tell us about your project — we'll respond within one business day.
+      </p>
+    </div>
+
+    <div class="fade-up" style="transition-delay: 180ms;">
+      <ContactForm />
+    </div>
+  </div>
+</section>

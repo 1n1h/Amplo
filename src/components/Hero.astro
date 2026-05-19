@@ -1,0 +1,44 @@
+---
+import Eyebrow from './Eyebrow.astro';
+---
+
+<section
+  id="top"
+  class="relative min-h-[100svh] flex items-center pt-32 pb-24 md:pt-40 md:pb-32 overflow-hidden"
+>
+  <div
+    aria-hidden="true"
+    class="pointer-events-none absolute inset-0 -z-10"
+    style="background: radial-gradient(ellipse 80% 60% at 50% 30%, color-mix(in oklab, var(--color-navy-elevated) 70%, transparent), transparent 70%);"
+  >
+  </div>
+
+  <div class="container-site text-center">
+    <div class="fade-up">
+      <Eyebrow label="Welcome to Amplo Consulting" variant="flanked" align="center" />
+    </div>
+
+    <h1
+      class="fade-up mt-10 text-[clamp(2.5rem,7vw,4.5rem)] leading-[1.05]"
+      style="transition-delay: 80ms;"
+    >
+      We help companies<br /><em>grow with purpose.</em>
+    </h1>
+
+    <p
+      class="fade-up mx-auto mt-8 max-w-2xl text-base md:text-lg text-[var(--color-text-muted)]"
+      style="transition-delay: 160ms;"
+    >
+      Comprehensive legal, compliance, and business strategy for startups and
+      technology companies navigating complex environments.
+    </p>
+
+    <div
+      class="fade-up mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row"
+      style="transition-delay: 240ms;"
+    >
+      <a href="#services" class="btn-primary">Our Services</a>
+      <a href="#contact" class="btn-secondary">Get in Touch</a>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,24 @@
+---
+const year = new Date().getFullYear();
+---
+
+<footer class="border-t border-[var(--color-gold)]/20 py-10">
+  <div class="container-site flex flex-col items-center justify-between gap-6 md:flex-row">
+    <a href="#top" class="wordmark text-xl" aria-label="Amplo Consulting — home">
+      Amplo<span class="dot">.</span>
+    </a>
+
+    <div class="flex flex-col items-center gap-2 text-xs md:flex-row md:gap-6 text-[var(--color-text-muted)]">
+      <a
+        href="/privacy"
+        class="uppercase tracking-[0.15em] text-[var(--color-cream)]/80 hover:text-[var(--color-gold)] transition"
+      >
+        Privacy Policy
+      </a>
+      <span class="hidden md:inline-block h-3 w-px bg-[var(--color-cream)]/15"></span>
+      <span class="text-[0.7rem] uppercase tracking-[0.12em]">
+        © {year} Amplo Consulting, LLC — Miami, FL
+      </span>
+    </div>
+  </div>
+</footer>

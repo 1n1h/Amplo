@@ -1,0 +1,32 @@
+[
+  {
+    "number": "01",
+    "name": "Compliance Assessments",
+    "description": "Thorough assessments to ensure your business meets data protection, privacy, and industry-specific compliance requirements."
+  },
+  {
+    "number": "02",
+    "name": "Governance Advisory",
+    "description": "Establishing effective governance frameworks, policies, and procedures aligned to your legal and regulatory obligations."
+  },
+  {
+    "number": "03",
+    "name": "Risk Management",
+    "description": "Proactive identification and mitigation of operational, legal, and strategic risk across your organization."
+  },
+  {
+    "number": "04",
+    "name": "Regulatory Compliance",
+    "description": "Guidance and hands-on support for navigating complex, industry-specific regulatory environments."
+  },
+  {
+    "number": "05",
+    "name": "Data Protection",
+    "description": "Privacy-by-design audits and frameworks for data-intensive technology platforms (GDPR, CCPA, and more)."
+  },
+  {
+    "number": "06",
+    "name": "Legal Contracts & IP",
+    "description": "Reviewing, drafting, and negotiating contracts, plus trademarks, copyrights, and patent protection strategies."
+  }
+]

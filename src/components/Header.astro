@@ -1,0 +1,123 @@
+---
+const navLinks = [
+  { href: '#about', label: 'About' },
+  { href: '#services', label: 'Services' },
+  { href: '#contact', label: 'Contact' },
+];
+---
+
+<header
+  id="site-header"
+  class="fixed inset-x-0 top-0 z-40 transition-[background-color,backdrop-filter,box-shadow] duration-300"
+  data-scrolled="false"
+>
+  <div class="container-site flex items-center justify-between py-5 md:py-6">
+    <a href="#top" class="wordmark text-2xl md:text-[1.625rem]" aria-label="Amplo Consulting — home">
+      Amplo<span class="dot">.</span>
+    </a>
+
+    <nav aria-label="Primary" class="hidden md:flex items-center gap-10">
+      {
+        navLinks.map((link) => (
+          <a href={link.href} class="nav-link">
+            {link.label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <div class="hidden md:block">
+      <a href="#contact" class="btn-primary">Get in Touch</a>
+    </div>
+
+    <button
+      id="menu-toggle"
+      type="button"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+      aria-label="Open menu"
+      class="md:hidden flex h-10 w-10 flex-col items-center justify-center gap-1.5 rounded-sm border border-[var(--color-cream)]/20 transition hover:border-[var(--color-gold)]"
+    >
+      <span class="block h-px w-5 bg-[var(--color-cream)] transition" data-bar="top"></span>
+      <span class="block h-px w-5 bg-[var(--color-cream)] transition" data-bar="middle"></span>
+      <span class="block h-px w-5 bg-[var(--color-cream)] transition" data-bar="bottom"></span>
+    </button>
+  </div>
+
+  <div
+    id="mobile-menu"
+    hidden
+    class="md:hidden border-t border-[var(--color-cream)]/10 bg-[var(--color-navy)]/95 backdrop-blur"
+  >
+    <nav aria-label="Mobile" class="container-site flex flex-col gap-1 py-6">
+      {
+        navLinks.map((link) => (
+          <a
+            href={link.href}
+            class="nav-link block py-4 border-b border-[var(--color-cream)]/10"
+            data-mobile-link
+          >
+            {link.label}
+          </a>
+        ))
+      }
+      <a href="#contact" class="btn-primary mt-6 w-full" data-mobile-link>
+        Get in Touch
+      </a>
+    </nav>
+  </div>
+</header>
+
+<style>
+  #site-header[data-scrolled='true'] {
+    background-color: color-mix(in oklab, var(--color-navy) 92%, transparent);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 1px 0 0 color-mix(in oklab, var(--color-cream) 8%, transparent);
+  }
+  #menu-toggle[aria-expanded='true'] [data-bar='top'] {
+    transform: translateY(6px) rotate(45deg);
+  }
+  #menu-toggle[aria-expanded='true'] [data-bar='middle'] {
+    opacity: 0;
+  }
+  #menu-toggle[aria-expanded='true'] [data-bar='bottom'] {
+    transform: translateY(-6px) rotate(-45deg);
+  }
+</style>
+
+<script>
+  const header = document.getElementById('site-header');
+  const toggle = document.getElementById('menu-toggle');
+  const menu = document.getElementById('mobile-menu');
+  const mobileLinks = document.querySelectorAll<HTMLAnchorElement>('[data-mobile-link]');
+
+  const setScrolled = () => {
+    if (!header) return;
+    header.dataset.scrolled = window.scrollY > 12 ? 'true' : 'false';
+  };
+  setScrolled();
+  window.addEventListener('scroll', setScrolled, { passive: true });
+
+  const closeMenu = () => {
+    if (!toggle || !menu) return;
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.setAttribute('aria-label', 'Open menu');
+    menu.hidden = true;
+    document.body.style.overflow = '';
+  };
+
+  toggle?.addEventListener('click', () => {
+    if (!menu) return;
+    const isOpen = toggle.getAttribute('aria-expanded') === 'true';
+    toggle.setAttribute('aria-expanded', String(!isOpen));
+    toggle.setAttribute('aria-label', isOpen ? 'Open menu' : 'Close menu');
+    menu.hidden = isOpen;
+    document.body.style.overflow = isOpen ? '' : 'hidden';
+  });
+
+  mobileLinks.forEach((link) => link.addEventListener('click', closeMenu));
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeMenu();
+  });
+</script>

@@ -1,0 +1,26 @@
+---
+import Eyebrow from './Eyebrow.astro';
+import ServiceCard from './ServiceCard.astro';
+import services from '../content/services.json';
+---
+
+<section id="services" class="py-24 md:py-40">
+  <div class="container-site">
+    <div class="max-w-3xl">
+      <div class="fade-up">
+        <Eyebrow label="What We Do" variant="left" />
+      </div>
+
+      <h2
+        class="fade-up mt-8 text-[clamp(2rem,5vw,3.5rem)] leading-[1.08]"
+        style="transition-delay: 60ms;"
+      >
+        Tailored solutions designed to drive your <em>growth and success.</em>
+      </h2>
+    </div>
+
+    <div class="fade-up mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" style="transition-delay: 120ms;">
+      {services.map((s) => <ServiceCard {...s} />)}
+    </div>
+  </div>
+</section>

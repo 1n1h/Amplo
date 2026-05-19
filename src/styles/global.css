@@ -1,0 +1,210 @@
+@import 'tailwindcss';
+
+@import '@fontsource/cormorant-garamond/400.css';
+@import '@fontsource/cormorant-garamond/500.css';
+@import '@fontsource/cormorant-garamond/500-italic.css';
+@import '@fontsource/cormorant-garamond/600.css';
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+
+@theme {
+  --color-navy: #0b1936;
+  --color-navy-elevated: #13234a;
+  --color-cream: #ede5d2;
+  --color-periwinkle: #b8c2dc;
+  --color-text-muted: #a6b0c8;
+  --color-gold: #c9a961;
+  --color-gold-hover: #b79752;
+
+  --font-display: 'Cormorant Garamond', ui-serif, Georgia, 'Times New Roman',
+    serif;
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system,
+    'Segoe UI', Roboto, sans-serif;
+
+  --tracking-ui: 0.15em;
+
+  --container-site: 1320px;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    background-color: var(--color-navy);
+    color: var(--color-cream);
+  }
+  body {
+    font-family: var(--font-sans);
+    font-weight: 400;
+    line-height: 1.65;
+    color: var(--color-text-muted);
+    background-color: var(--color-navy);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    color: var(--color-cream);
+    line-height: 1.1;
+    letter-spacing: -0.005em;
+  }
+  h1 em,
+  h2 em,
+  h3 em,
+  h4 em {
+    font-style: italic;
+    color: var(--color-periwinkle);
+    font-weight: 500;
+  }
+  ::selection {
+    background-color: var(--color-gold);
+    color: var(--color-navy);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-gold);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+}
+
+@utility container-site {
+  width: 100%;
+  max-width: var(--container-site);
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+  @media (min-width: 768px) {
+    padding-inline: 2.5rem;
+  }
+  @media (min-width: 1280px) {
+    padding-inline: 3rem;
+  }
+}
+
+@utility eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-ui);
+  text-transform: uppercase;
+  color: var(--color-gold);
+}
+
+@utility eyebrow-line {
+  display: inline-block;
+  width: 2.5rem;
+  height: 1px;
+  background-color: var(--color-gold);
+}
+
+@utility btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: var(--color-gold);
+  color: var(--color-navy);
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.875rem;
+  letter-spacing: var(--tracking-ui);
+  text-transform: uppercase;
+  padding: 1rem 1.75rem;
+  border: 1.5px solid var(--color-gold);
+  border-radius: 2px;
+  transition: background-color 200ms ease, border-color 200ms ease,
+    transform 200ms ease;
+  cursor: pointer;
+  text-decoration: none;
+}
+@utility btn-primary {
+  &:hover {
+    background-color: var(--color-gold-hover);
+    border-color: var(--color-gold-hover);
+  }
+}
+
+@utility btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: transparent;
+  color: var(--color-cream);
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.875rem;
+  letter-spacing: var(--tracking-ui);
+  text-transform: uppercase;
+  padding: 1rem 1.75rem;
+  border: 1.5px solid var(--color-cream);
+  border-radius: 2px;
+  transition: background-color 200ms ease, color 200ms ease,
+    border-color 200ms ease;
+  cursor: pointer;
+  text-decoration: none;
+}
+@utility btn-secondary {
+  &:hover {
+    background-color: var(--color-cream);
+    color: var(--color-navy);
+  }
+}
+
+@utility nav-link {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-ui);
+  text-transform: uppercase;
+  color: var(--color-cream);
+  text-decoration: none;
+  transition: color 200ms ease;
+  position: relative;
+}
+@utility nav-link {
+  &:hover {
+    color: var(--color-gold);
+  }
+}
+
+@utility wordmark {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 1.5rem;
+  letter-spacing: 0.005em;
+  color: var(--color-cream);
+  text-decoration: none;
+  display: inline-block;
+}
+@utility wordmark {
+  & .dot {
+    color: var(--color-gold);
+  }
+}
+
+@layer utilities {
+  .fade-up {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 700ms ease-out, transform 700ms ease-out;
+    will-change: opacity, transform;
+  }
+  .fade-up.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .fade-up {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+}
