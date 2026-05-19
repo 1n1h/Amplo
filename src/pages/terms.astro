@@ -2,20 +2,154 @@
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+
+const lastUpdated = 'May 19, 2026';
 ---
 
 <Layout
   title="Terms of Service — Amplo Consulting"
-  description="Terms governing your use of the Amplo Consulting website and services."
+  description="Terms governing your use of the Amplo Consulting website and related services."
 >
   <Header />
   <main id="main" class="pt-32 md:pt-40 pb-24 md:pb-32">
-    <div class="container-site max-w-3xl">
+    <div class="container-site max-w-3xl legal-doc">
       <p class="text-xs font-semibold uppercase tracking-[0.15em] text-[var(--color-gold)]">Terms</p>
       <h1 class="mt-6 text-[clamp(2rem,5vw,3.5rem)] leading-[1.08]">Terms of Service</h1>
-      <p class="mt-6 text-[var(--color-text-muted)]">
-        Placeholder. Replace this with the firm's terms of service copy before
-        going live.
+      <p class="mt-4 text-sm text-[var(--color-text-muted)]">Last updated: {lastUpdated}</p>
+
+      <p class="mt-10">
+        These Terms of Service ("<strong>Terms</strong>") govern your
+        access to and use of
+        <a href="https://amploconsulting.com">amploconsulting.com</a>
+        (the "<strong>Site</strong>") operated by Amplo Consulting, LLC
+        ("<strong>Amplo</strong>," "<strong>we</strong>,"
+        "<strong>us</strong>," or "<strong>our</strong>"). By using the
+        Site you agree to be bound by these Terms. If you do not agree,
+        please do not use the Site.
+      </p>
+
+      <h2>1. No Attorney-Client or Consulting Relationship</h2>
+      <p>
+        The Site provides general information about Amplo and the
+        services we offer. Reviewing the Site, contacting us through the
+        Site, or sending us information through the contact form
+        <strong>does not create an attorney-client relationship,
+        consulting engagement, fiduciary duty, or any other professional
+        relationship</strong> between you and Amplo. A professional
+        relationship with Amplo arises only when both parties sign a
+        written engagement agreement that expressly creates it. Until
+        such an agreement is signed, do not send us confidential or
+        privileged information.
+      </p>
+
+      <h2>2. Not Legal Advice</h2>
+      <p>
+        Content on the Site is provided for general informational
+        purposes only and does not constitute legal, regulatory, tax, or
+        business advice. Laws and regulations change frequently and vary
+        by jurisdiction and circumstance. You should consult qualified
+        counsel about your particular situation before acting on any
+        information you find on the Site.
+      </p>
+
+      <h2>3. Use of the Site</h2>
+      <p>You agree that you will not:</p>
+      <ul>
+        <li>use the Site for any unlawful purpose or in violation of these Terms;</li>
+        <li>attempt to interfere with, disrupt, or gain unauthorized access to the Site, its infrastructure, or any user account;</li>
+        <li>submit information through the Site that is false, misleading, infringing, defamatory, or unlawful;</li>
+        <li>copy, reproduce, distribute, or create derivative works of any content on the Site except as expressly permitted by these Terms; or</li>
+        <li>use any automated means, including bots or scrapers, to access the Site in a manner that imposes an unreasonable load on our infrastructure.</li>
+      </ul>
+
+      <h2>4. Intellectual Property</h2>
+      <p>
+        The Site, including its text, design, layout, graphics, logos,
+        and other content, is the property of Amplo or its licensors and
+        is protected by United States and international intellectual
+        property laws. You may view and print pages of the Site for your
+        own personal, non-commercial reference. Any other use requires
+        our prior written consent.
+      </p>
+
+      <h2>5. Submissions Through the Contact Form</h2>
+      <p>
+        Information you submit through the contact form will be handled
+        as described in our <a href="/privacy">Privacy Policy</a>. By
+        submitting information, you represent that it is accurate, that
+        you have the right to share it, and that doing so will not
+        violate any law or any obligation you owe to a third party.
+      </p>
+
+      <h2>6. Third-Party Links and Services</h2>
+      <p>
+        The Site may contain links to third-party websites or rely on
+        third-party services (such as Google, Resend, and Vercel) to
+        operate. We do not control those websites or services and we are
+        not responsible for their content, policies, or practices.
+      </p>
+
+      <h2>7. Disclaimer of Warranties</h2>
+      <p>
+        The Site is provided on an "<strong>as is</strong>" and
+        "<strong>as available</strong>" basis. To the fullest extent
+        permitted by law, Amplo disclaims all warranties of any kind,
+        whether express or implied, including warranties of
+        merchantability, fitness for a particular purpose,
+        non-infringement, accuracy, and uninterrupted operation. We do
+        not warrant that the Site will be error-free, secure, or
+        continuously available.
+      </p>
+
+      <h2>8. Limitation of Liability</h2>
+      <p>
+        To the fullest extent permitted by law, Amplo and its members,
+        managers, employees, contractors, and agents will not be liable
+        for any indirect, incidental, consequential, special, exemplary,
+        or punitive damages, or for any loss of profits, revenue, data,
+        or goodwill, arising out of or related to your use of the Site,
+        even if we have been advised of the possibility of such damages.
+        In no event will our aggregate liability arising out of or
+        related to the Site exceed one hundred U.S. dollars (US$100.00).
+      </p>
+
+      <h2>9. Indemnification</h2>
+      <p>
+        You agree to indemnify, defend, and hold harmless Amplo and its
+        members, managers, employees, contractors, and agents from and
+        against any claims, damages, losses, liabilities, and expenses
+        (including reasonable attorneys' fees) arising out of or related
+        to your use of the Site, your violation of these Terms, or your
+        violation of any rights of a third party.
+      </p>
+
+      <h2>10. Governing Law and Venue</h2>
+      <p>
+        These Terms are governed by the laws of the State of Florida,
+        without regard to its conflict-of-laws principles. Any dispute
+        arising out of or related to these Terms or the Site will be
+        resolved exclusively in the state or federal courts located in
+        Miami-Dade County, Florida, and you consent to the personal
+        jurisdiction of those courts.
+      </p>
+
+      <h2>11. Changes to These Terms</h2>
+      <p>
+        We may revise these Terms from time to time. When we do, we will
+        update the "Last updated" date above. Continued use of the Site
+        after a revision constitutes acceptance of the revised Terms.
+      </p>
+
+      <h2>12. Contact Us</h2>
+      <p>
+        Questions about these Terms? Contact us at
+        <a href="mailto:info@amploconsulting.com">info@amploconsulting.com</a>
+        or by mail at:
+      </p>
+      <p>
+        Amplo Consulting, LLC<br />
+        Miami, Florida<br />
+        United States
       </p>
     </div>
   </main>
