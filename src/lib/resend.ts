@@ -48,7 +48,12 @@ function deriveCompany(email: string): string {
 export async function sendLeadNotification(lead: LeadEmailInput): Promise<void> {
   const apiKey = requireEnv('RESEND_API_KEY');
   const from = optionalEnv('RESEND_FROM_EMAIL', 'onboarding@resend.dev');
-  const to = requireEnv('LEAD_NOTIFICATION_EMAIL');
+  // LEAD_NOTIFICATION_EMAIL accepts a single address or a comma-separated list.
+  const toRaw = requireEnv('LEAD_NOTIFICATION_EMAIL');
+  const to = toRaw
+    .split(',')
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
 
   const company = deriveCompany(lead.email);
   const subject = company
@@ -91,7 +96,7 @@ export async function sendLeadNotification(lead: LeadEmailInput): Promise<void> 
     },
     body: JSON.stringify({
       from,
-      to: [to],
+      to,
       reply_to: lead.email,
       subject,
       text,

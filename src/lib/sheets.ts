@@ -64,6 +64,17 @@ function sheetUrl(path: string): string {
   return `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(id)}${path}`;
 }
 
+// Encode an A1 range for use in the URL. We encode characters that would
+// genuinely break URL parsing (spaces, #, ?) but leave A1-notation chars
+// like `!` and `:` literal, which Google Sheets expects in path segments.
+function encodeRange(range: string): string {
+  return range
+    .replace(/%/g, '%25')
+    .replace(/ /g, '%20')
+    .replace(/#/g, '%23')
+    .replace(/\?/g, '%3F');
+}
+
 export interface LeadRow {
   rowNumber: number; // 1-indexed sheet row (row 2 is the first data row, row 1 is header)
   timestamp: string;
@@ -74,6 +85,23 @@ export interface LeadRow {
   status: string;
   notes: string;
   lastUpdated: string;
+}
+
+// Format a timestamp for display in the Sheet using Miami (America/New_York) time.
+// Example: "May 19, 2026 · 7:58 AM ET"
+function formatTimestamp(d: Date): string {
+  const fmt = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York',
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+    timeZoneName: 'short',
+  });
+  // Intl renders "May 19, 2026, 7:58 AM EDT" — replace the second comma with a dot bullet.
+  return fmt.format(d).replace(/, (\d)/, ' · $1');
 }
 
 const STATUS_VALUES = ['New', 'Contacted', 'Qualified', 'Closed-Won', 'Closed-Lost'] as const;
@@ -89,7 +117,7 @@ export interface AppendLeadInput {
 
 export async function appendLead(input: AppendLeadInput): Promise<{ timestamp: string }> {
   const token = await getAccessToken();
-  const timestamp = new Date().toISOString();
+  const timestamp = formatTimestamp(new Date());
   const row = [
     timestamp,
     input.name,
@@ -101,9 +129,11 @@ export async function appendLead(input: AppendLeadInput): Promise<{ timestamp: s
     timestamp,
   ];
 
+  // valueInputOption=RAW so values like "+1 305 555 0100" aren't parsed as
+  // formulas by Sheets. Side effect: ISO timestamps stay as text, not Date cells.
   const res = await fetch(
     sheetUrl(
-      `/values/${encodeURIComponent(`${SHEET_NAME}!A:H`)}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`
+      `/values/${encodeRange(`${SHEET_NAME}!A:H`)}:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`
     ),
     {
       method: 'POST',
@@ -124,7 +154,7 @@ export async function appendLead(input: AppendLeadInput): Promise<{ timestamp: s
 export async function getLeads(): Promise<LeadRow[]> {
   const token = await getAccessToken();
   const res = await fetch(
-    sheetUrl(`/values/${encodeURIComponent(`${SHEET_NAME}!A2:H`)}?majorDimension=ROWS`),
+    sheetUrl(`/values/${encodeRange(`${SHEET_NAME}!A2:H`)}?majorDimension=ROWS`),
     { headers: { Authorization: `Bearer ${token}` } }
   );
   if (!res.ok) {
@@ -161,7 +191,7 @@ export async function updateLead(
   const token = await getAccessToken();
   const range = `${SHEET_NAME}!A${rowNumber}:H${rowNumber}`;
   const readRes = await fetch(
-    sheetUrl(`/values/${encodeURIComponent(range)}`),
+    sheetUrl(`/values/${encodeRange(range)}`),
     { headers: { Authorization: `Bearer ${token}` } }
   );
   if (!readRes.ok) {
@@ -171,7 +201,7 @@ export async function updateLead(
   const current = readJson.values?.[0] ?? [];
   if (current.length === 0) throw new Error(`Row ${rowNumber} not found`);
 
-  const lastUpdated = new Date().toISOString();
+  const lastUpdated = formatTimestamp(new Date());
   const updated = [
     current[0] ?? '',
     current[1] ?? '',
@@ -184,7 +214,7 @@ export async function updateLead(
   ];
 
   const writeRes = await fetch(
-    sheetUrl(`/values/${encodeURIComponent(range)}?valueInputOption=USER_ENTERED`),
+    sheetUrl(`/values/${encodeRange(range)}?valueInputOption=RAW`),
     {
       method: 'PUT',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
