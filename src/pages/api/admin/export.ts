@@ -21,6 +21,7 @@ function rowToCsv(r: LeadRow): string {
     r.status,
     r.notes,
     r.lastUpdated,
+    r.appointment,
   ]
     .map(csvEscape)
     .join(',');
@@ -54,6 +55,7 @@ export const GET: APIRoute = async ({ url }) => {
       'Status',
       'Notes',
       'Last Updated',
+      'Appointment',
     ].join(',');
     const csv = [header, ...filtered.map(rowToCsv)].join('\r\n');
 

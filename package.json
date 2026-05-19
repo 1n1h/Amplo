@@ -13,11 +13,14 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@ai-sdk/openai-compatible": "^2.0.47",
     "@astrojs/sitemap": "^3.7.2",
     "@astrojs/vercel": "^10.0.7",
     "@fontsource/cormorant-garamond": "^5.2.11",
     "@fontsource/inter": "^5.2.8",
     "@tailwindcss/vite": "^4.3.0",
+    "@vercel/analytics": "^2.0.1",
+    "ai": "^6.0.185",
     "astro": "^6.3.5",
     "tailwindcss": "^4.3.0"
   },

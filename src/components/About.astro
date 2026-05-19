@@ -10,27 +10,29 @@ const bullets = [
 
 <section id="about" class="py-24 md:py-40">
   <div class="container-site max-w-4xl">
-    <div class="fade-up">
-      <Eyebrow label="About Amplo" variant="left" />
+    <div class="text-center">
+      <div class="fade-up">
+        <Eyebrow label="About Amplo" variant="flanked" align="center" />
+      </div>
+
+      <h2
+        class="fade-up mt-8 text-[clamp(2rem,5vw,3.5rem)] leading-[1.08]"
+        style="transition-delay: 60ms;"
+      >
+        We grow <em>together</em> — that's our promise.
+      </h2>
+
+      <p
+        class="fade-up mx-auto mt-8 max-w-2xl text-base md:text-lg text-[var(--color-text-muted)]"
+        style="transition-delay: 120ms;"
+      >
+        As catalysts of innovation, we stand shoulder-to-shoulder with startups
+        and tech companies, turning aspirations into achievements and pioneering
+        the future, together.
+      </p>
     </div>
 
-    <h2
-      class="fade-up mt-8 text-[clamp(2rem,5vw,3.5rem)] leading-[1.08] max-w-3xl"
-      style="transition-delay: 60ms;"
-    >
-      We grow <em>together</em> — that's our promise.
-    </h2>
-
-    <p
-      class="fade-up mt-8 max-w-2xl text-base md:text-lg text-[var(--color-text-muted)]"
-      style="transition-delay: 120ms;"
-    >
-      As catalysts of innovation, we stand shoulder-to-shoulder with startups
-      and tech companies, turning aspirations into achievements and pioneering
-      the future, together.
-    </p>
-
-    <ul class="fade-up mt-12 max-w-2xl divide-y divide-[var(--color-gold)]/25" style="transition-delay: 180ms;">
+    <ul class="fade-up mx-auto mt-12 max-w-2xl divide-y divide-[var(--color-gold)]/25" style="transition-delay: 180ms;">
       {
         bullets.map((item) => (
           <li class="flex items-center gap-4 py-5">

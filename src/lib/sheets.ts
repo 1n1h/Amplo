@@ -85,6 +85,7 @@ export interface LeadRow {
   status: string;
   notes: string;
   lastUpdated: string;
+  appointment: string;
 }
 
 // Format a timestamp for display in the Sheet using Miami (America/New_York) time.
@@ -113,6 +114,17 @@ export interface AppendLeadInput {
   email: string;
   mobile: string;
   message: string;
+  /** ISO timestamp of a booked appointment, if this lead is from the booking flow. */
+  appointmentISO?: string;
+}
+
+// Format an appointment ISO into the same human-readable style as the timestamp
+// column (Miami time). Returns '' for missing input.
+function formatAppointment(iso: string | undefined): string {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  return formatTimestamp(d);
 }
 
 export async function appendLead(input: AppendLeadInput): Promise<{ timestamp: string }> {
@@ -127,13 +139,14 @@ export async function appendLead(input: AppendLeadInput): Promise<{ timestamp: s
     'New',
     '',
     timestamp,
+    formatAppointment(input.appointmentISO), // I = Appointment
   ];
 
   // valueInputOption=RAW so values like "+1 305 555 0100" aren't parsed as
   // formulas by Sheets. Side effect: ISO timestamps stay as text, not Date cells.
   const res = await fetch(
     sheetUrl(
-      `/values/${encodeRange(`${SHEET_NAME}!A:H`)}:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`
+      `/values/${encodeRange(`${SHEET_NAME}!A:I`)}:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`
     ),
     {
       method: 'POST',
@@ -154,7 +167,7 @@ export async function appendLead(input: AppendLeadInput): Promise<{ timestamp: s
 export async function getLeads(): Promise<LeadRow[]> {
   const token = await getAccessToken();
   const res = await fetch(
-    sheetUrl(`/values/${encodeRange(`${SHEET_NAME}!A2:H`)}?majorDimension=ROWS`),
+    sheetUrl(`/values/${encodeRange(`${SHEET_NAME}!A2:I`)}?majorDimension=ROWS`),
     { headers: { Authorization: `Bearer ${token}` } }
   );
   if (!res.ok) {
@@ -173,6 +186,7 @@ export async function getLeads(): Promise<LeadRow[]> {
     status: r[5] ?? 'New',
     notes: r[6] ?? '',
     lastUpdated: r[7] ?? '',
+    appointment: r[8] ?? '',
   }));
 }
 
@@ -189,7 +203,7 @@ export async function updateLead(
 
   // Read current row so we can write back fields we're not changing.
   const token = await getAccessToken();
-  const range = `${SHEET_NAME}!A${rowNumber}:H${rowNumber}`;
+  const range = `${SHEET_NAME}!A${rowNumber}:I${rowNumber}`;
   const readRes = await fetch(
     sheetUrl(`/values/${encodeRange(range)}`),
     { headers: { Authorization: `Bearer ${token}` } }
@@ -211,6 +225,7 @@ export async function updateLead(
     updates.status ?? current[5] ?? 'New',
     updates.notes ?? current[6] ?? '',
     lastUpdated,
+    current[8] ?? '', // I = Appointment — preserved as-is
   ];
 
   const writeRes = await fetch(

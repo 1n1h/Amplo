@@ -1,5 +1,7 @@
 ---
 import '../styles/global.css';
+import AmploAi from '../components/AmploAi.astro';
+import Analytics from '@vercel/analytics/astro';
 
 interface Props {
   title?: string;
@@ -76,6 +78,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site).toString();
       >Skip to content</a
     >
     <slot />
+    <AmploAi />
+    <Analytics />
     <script>
       // Subtle fade-up on scroll entrance. Intersection Observer, no library.
       const io = new IntersectionObserver(

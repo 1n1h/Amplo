@@ -1,6 +1,7 @@
 ---
 import Eyebrow from './Eyebrow.astro';
 import ContactForm from './ContactForm.astro';
+import BookingForm from './BookingForm.astro';
 ---
 
 <section id="contact" class="py-24 md:py-40">
@@ -21,12 +22,95 @@ import ContactForm from './ContactForm.astro';
         class="fade-up mx-auto mt-6 max-w-xl text-base md:text-lg text-[var(--color-text-muted)]"
         style="transition-delay: 120ms;"
       >
-        Tell us about your project — we'll respond within one business day.
+        Send us a note, or book a 30-minute intro call on the calendar.
       </p>
     </div>
 
-    <div class="fade-up" style="transition-delay: 180ms;">
+    <div class="fade-up mt-12" style="transition-delay: 180ms;">
+      <div
+        class="inline-flex rounded-md p-1 border border-[var(--color-cream)]/15 bg-[var(--color-navy-elevated)]/70 mx-auto"
+        role="tablist"
+        aria-label="Contact method"
+      >
+        <button
+          type="button"
+          id="tab-message"
+          role="tab"
+          aria-selected="true"
+          aria-controls="panel-message"
+          class="contact-tab is-active"
+        >
+          Send a Message
+        </button>
+        <button
+          type="button"
+          id="tab-booking"
+          role="tab"
+          aria-selected="false"
+          aria-controls="panel-booking"
+          class="contact-tab"
+        >
+          Book a Meeting
+        </button>
+      </div>
+    </div>
+
+    <div id="panel-message" role="tabpanel" aria-labelledby="tab-message" class="fade-up" style="transition-delay: 220ms;">
       <ContactForm />
+    </div>
+
+    <div id="panel-booking" role="tabpanel" aria-labelledby="tab-booking" class="fade-up hidden" style="transition-delay: 220ms;">
+      <BookingForm />
     </div>
   </div>
 </section>
+
+<style>
+  .contact-tab {
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    transition: background 200ms ease, color 200ms ease;
+  }
+  .contact-tab:hover:not(.is-active) {
+    color: var(--color-cream);
+  }
+  .contact-tab.is-active {
+    background: var(--color-gold);
+    color: var(--color-navy);
+  }
+</style>
+
+<script>
+  const tabMessage = document.getElementById('tab-message') as HTMLButtonElement | null;
+  const tabBooking = document.getElementById('tab-booking') as HTMLButtonElement | null;
+  const panelMessage = document.getElementById('panel-message') as HTMLDivElement | null;
+  const panelBooking = document.getElementById('panel-booking') as HTMLDivElement | null;
+
+  function activate(which: 'message' | 'booking') {
+    if (!tabMessage || !tabBooking || !panelMessage || !panelBooking) return;
+    const isMsg = which === 'message';
+    tabMessage.classList.toggle('is-active', isMsg);
+    tabBooking.classList.toggle('is-active', !isMsg);
+    tabMessage.setAttribute('aria-selected', String(isMsg));
+    tabBooking.setAttribute('aria-selected', String(!isMsg));
+    panelMessage.classList.toggle('hidden', !isMsg);
+    panelBooking.classList.toggle('hidden', isMsg);
+  }
+
+  tabMessage?.addEventListener('click', () => activate('message'));
+  tabBooking?.addEventListener('click', () => activate('booking'));
+
+  // Deep-link: #contact?book opens the booking tab.
+  if (window.location.hash === '#contact' && window.location.search.includes('book')) {
+    activate('booking');
+  }
+</script>

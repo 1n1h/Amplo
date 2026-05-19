@@ -1,0 +1,479 @@
+---
+// Booking flow: pick a date, pick a 30-min slot, fill the form, submit.
+// All availability + slot math happens server-side via /api/availability and /api/book.
+---
+
+<div class="mt-12" id="booking-root">
+  <!-- Step 1 + 2: date picker + slot list -->
+  <div id="booking-picker" class="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8 lg:gap-12">
+    <!-- Calendar -->
+    <div>
+      <div class="flex items-center justify-between mb-5">
+        <button type="button" id="cal-prev" class="cal-nav" aria-label="Previous month">‹</button>
+        <span id="cal-month-label" class="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--color-cream)]"></span>
+        <button type="button" id="cal-next" class="cal-nav" aria-label="Next month">›</button>
+      </div>
+
+      <div class="grid grid-cols-7 gap-1 text-[0.65rem] uppercase tracking-[0.15em] text-[var(--color-text-muted)] mb-2">
+        <div class="text-center py-1">Sun</div>
+        <div class="text-center py-1">Mon</div>
+        <div class="text-center py-1">Tue</div>
+        <div class="text-center py-1">Wed</div>
+        <div class="text-center py-1">Thu</div>
+        <div class="text-center py-1">Fri</div>
+        <div class="text-center py-1">Sat</div>
+      </div>
+
+      <div id="cal-grid" class="grid grid-cols-7 gap-1"></div>
+
+      <p class="mt-4 text-xs text-[var(--color-text-muted)]">
+        Monday through Friday, 9:00&nbsp;AM – 6:00&nbsp;PM Eastern. 30-minute slots.
+      </p>
+    </div>
+
+    <!-- Slot list -->
+    <div>
+      <div class="flex items-center justify-between mb-5">
+        <span id="slots-title" class="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--color-cream)]">
+          Select a date
+        </span>
+      </div>
+      <div
+        id="slots-list"
+        class="grid grid-cols-2 gap-2 max-h-[420px] overflow-y-auto pr-1"
+        aria-live="polite"
+      >
+        <p class="col-span-2 text-sm text-[var(--color-text-muted)] py-6">
+          Pick a date from the calendar to see open times.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 3: booking form (shown after a slot is selected) -->
+  <form
+    id="booking-form"
+    class="hidden mt-10 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-7"
+    novalidate
+  >
+    <div class="md:col-span-2 flex items-center justify-between rounded-md border border-[var(--color-gold)]/40 bg-[var(--color-navy-elevated)] p-5">
+      <div>
+        <p class="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-[var(--color-gold)] mb-1">
+          Selected time
+        </p>
+        <p id="selected-slot-label" class="text-base text-[var(--color-cream)]">—</p>
+      </div>
+      <button type="button" id="change-slot" class="text-xs uppercase tracking-[0.18em] text-[var(--color-text-muted)] hover:text-[var(--color-gold)] underline underline-offset-4 decoration-[var(--color-gold)]/40">
+        Change
+      </button>
+    </div>
+
+    <div class="field">
+      <label for="b-name" class="field-label">Name</label>
+      <input id="b-name" name="name" type="text" autocomplete="name" required placeholder="Your name" class="field-input" />
+    </div>
+    <div class="field">
+      <label for="b-email" class="field-label">Email</label>
+      <input id="b-email" name="email" type="email" autocomplete="email" required placeholder="you@company.com" class="field-input" />
+    </div>
+    <div class="field md:col-span-2">
+      <label for="b-mobile" class="field-label">Mobile</label>
+      <input id="b-mobile" name="mobile" type="tel" autocomplete="tel" placeholder="+1 (555) 555-5555" class="field-input" />
+    </div>
+    <div class="field md:col-span-2">
+      <label for="b-message" class="field-label">Message</label>
+      <textarea id="b-message" name="message" rows="5" required placeholder="Tell us about your project..." class="field-input resize-y"></textarea>
+    </div>
+
+    <!-- Honeypot -->
+    <div class="hidden" aria-hidden="true">
+      <label>Don't fill this out
+        <input name="company_website" type="text" tabindex="-1" autocomplete="off" />
+      </label>
+    </div>
+
+    <input type="hidden" id="b-startISO" name="startISO" value="" />
+
+    <div class="md:col-span-2 flex flex-col sm:flex-row sm:items-center sm:gap-6 mt-2">
+      <button type="submit" class="btn-primary self-start" id="booking-submit">
+        Confirm Booking
+      </button>
+      <p id="booking-status" class="text-sm text-[var(--color-text-muted)]" role="status" aria-live="polite"></p>
+    </div>
+  </form>
+
+  <!-- Success state -->
+  <div
+    id="booking-success"
+    hidden
+    class="mt-10 rounded-md border border-[var(--color-gold)]/40 bg-[var(--color-navy-elevated)] p-8"
+  >
+    <p class="eyebrow"><span class="eyebrow-line"></span>You're on the calendar</p>
+    <h3 class="mt-4 text-2xl md:text-3xl">Booking confirmed.</h3>
+    <p class="mt-4 max-w-xl text-[var(--color-text-muted)]">
+      We've emailed a calendar file to <span id="success-email" class="text-[var(--color-cream)]"></span> for
+      <span id="success-when" class="text-[var(--color-cream)]"></span>. Open the attachment to add it to your calendar.
+      Questions in the meantime? Email
+      <a class="underline decoration-[var(--color-gold)]/60 underline-offset-4 hover:text-[var(--color-gold)]" href="mailto:Roger@amploconsulting.com">Roger@amploconsulting.com</a>.
+    </p>
+  </div>
+</div>
+
+<style>
+  .cal-nav {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 9999px;
+    border: 1px solid color-mix(in oklab, var(--color-cream) 22%, transparent);
+    background: transparent;
+    color: var(--color-cream);
+    font-size: 1.25rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: border-color 200ms ease, color 200ms ease, background 200ms ease;
+  }
+  .cal-nav:hover {
+    border-color: var(--color-gold);
+    color: var(--color-gold);
+  }
+  .cal-nav:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  .cal-day {
+    aspect-ratio: 1 / 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--color-cream);
+    cursor: pointer;
+    transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+  }
+  .cal-day:hover:not(:disabled):not(.cal-selected) {
+    background: color-mix(in oklab, #ffffff 6%, var(--color-navy));
+    border-color: color-mix(in oklab, var(--color-gold) 50%, transparent);
+  }
+  .cal-day:disabled {
+    color: color-mix(in oklab, var(--color-cream) 22%, transparent);
+    cursor: not-allowed;
+  }
+  .cal-selected {
+    background: var(--color-gold);
+    color: var(--color-navy);
+    font-weight: 600;
+  }
+  .cal-today:not(.cal-selected):not(:disabled) {
+    border-color: color-mix(in oklab, var(--color-gold) 60%, transparent);
+  }
+  .cal-empty { visibility: hidden; }
+
+  .slot-btn {
+    padding: 0.75rem 0.5rem;
+    text-align: center;
+    font-size: 0.875rem;
+    background: color-mix(in oklab, #ffffff 4%, var(--color-navy));
+    border: 1px solid color-mix(in oklab, var(--color-cream) 22%, transparent);
+    border-radius: 4px;
+    color: var(--color-cream);
+    cursor: pointer;
+    transition: border-color 150ms ease, background 150ms ease, color 150ms ease;
+  }
+  .slot-btn:hover:not(:disabled) {
+    border-color: var(--color-gold);
+    color: var(--color-gold);
+  }
+  .slot-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    text-decoration: line-through;
+  }
+
+  /* Reuse the contact form's field styling */
+  .field { display: flex; flex-direction: column; gap: 0.625rem; }
+  .field-label {
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--color-cream);
+  }
+  .field-input {
+    width: 100%;
+    background: color-mix(in oklab, #ffffff 4%, var(--color-navy));
+    border: 1px solid color-mix(in oklab, var(--color-cream) 22%, transparent);
+    border-radius: 4px;
+    padding: 0.95rem 1rem;
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    color: var(--color-cream);
+    transition: border-color 200ms ease, background 200ms ease, box-shadow 200ms ease;
+  }
+  .field-input::placeholder { color: color-mix(in oklab, var(--color-cream) 45%, transparent); }
+  .field-input:hover { border-color: color-mix(in oklab, var(--color-cream) 38%, transparent); }
+  .field-input:focus {
+    border-color: var(--color-gold);
+    background: color-mix(in oklab, #ffffff 6%, var(--color-navy));
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-gold) 18%, transparent);
+    outline: none;
+  }
+</style>
+
+<script>
+  type SlotRow = { startISO: string; endISO: string; label: string; available: boolean };
+
+  const BOOKING_HORIZON_DAYS = 45;
+  const TZ = 'America/New_York';
+
+  const calGrid = document.getElementById('cal-grid') as HTMLDivElement;
+  const calMonthLabel = document.getElementById('cal-month-label') as HTMLSpanElement;
+  const prevBtn = document.getElementById('cal-prev') as HTMLButtonElement;
+  const nextBtn = document.getElementById('cal-next') as HTMLButtonElement;
+
+  const slotsList = document.getElementById('slots-list') as HTMLDivElement;
+  const slotsTitle = document.getElementById('slots-title') as HTMLSpanElement;
+
+  const form = document.getElementById('booking-form') as HTMLFormElement;
+  const picker = document.getElementById('booking-picker') as HTMLDivElement;
+  const selectedSlotLabel = document.getElementById('selected-slot-label') as HTMLParagraphElement;
+  const startISOInput = document.getElementById('b-startISO') as HTMLInputElement;
+  const submitBtn = document.getElementById('booking-submit') as HTMLButtonElement;
+  const statusEl = document.getElementById('booking-status') as HTMLParagraphElement;
+  const successEl = document.getElementById('booking-success') as HTMLDivElement;
+  const successEmail = document.getElementById('success-email') as HTMLSpanElement;
+  const successWhen = document.getElementById('success-when') as HTMLSpanElement;
+  const changeSlotBtn = document.getElementById('change-slot') as HTMLButtonElement;
+
+  // "Today" in NY for clamp logic.
+  function todayInNy(): { y: number; m: number; d: number } {
+    const dtf = new Intl.DateTimeFormat('en-US', {
+      timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit',
+    });
+    const parts = dtf.formatToParts(new Date());
+    const get = (t: string) => Number(parts.find((p) => p.type === t)?.value);
+    return { y: get('year'), m: get('month'), d: get('day') };
+  }
+
+  const today = todayInNy();
+  // Current month/year being displayed (defaults to today's month).
+  let viewYear = today.y;
+  let viewMonth = today.m; // 1-12
+
+  // Selected date (YYYY-MM-DD) — null until user picks one.
+  let selectedDate: string | null = null;
+
+  function fmtMonthLabel(y: number, m: number): string {
+    return new Date(y, m - 1, 1).toLocaleString('en-US', { month: 'long', year: 'numeric' });
+  }
+  function pad2(n: number): string { return n < 10 ? `0${n}` : String(n); }
+  function ymd(y: number, m: number, d: number): string { return `${y}-${pad2(m)}-${pad2(d)}`; }
+
+  function compareYMD(a: { y: number; m: number; d: number }, b: { y: number; m: number; d: number }): number {
+    return (a.y * 10000 + a.m * 100 + a.d) - (b.y * 10000 + b.m * 100 + b.d);
+  }
+
+  function daysInMonth(y: number, m: number): number {
+    return new Date(y, m, 0).getDate();
+  }
+  function weekdayOfFirst(y: number, m: number): number {
+    // 0 = Sunday ... 6 = Saturday
+    return new Date(y, m - 1, 1).getDay();
+  }
+
+  function isHorizonReached(y: number, m: number, d: number): boolean {
+    const target = new Date(y, m - 1, d, 12, 0, 0).getTime();
+    const horizon = Date.now() + BOOKING_HORIZON_DAYS * 24 * 60 * 60 * 1000;
+    return target > horizon;
+  }
+
+  function renderCalendar() {
+    calMonthLabel.textContent = fmtMonthLabel(viewYear, viewMonth);
+    calGrid.innerHTML = '';
+
+    const firstDow = weekdayOfFirst(viewYear, viewMonth);
+    const dim = daysInMonth(viewYear, viewMonth);
+
+    for (let i = 0; i < firstDow; i++) {
+      const empty = document.createElement('div');
+      empty.className = 'cal-day cal-empty';
+      calGrid.appendChild(empty);
+    }
+
+    for (let d = 1; d <= dim; d++) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'cal-day';
+      btn.textContent = String(d);
+
+      const dow = new Date(viewYear, viewMonth - 1, d).getDay();
+      const isPast = compareYMD({ y: viewYear, m: viewMonth, d }, today) < 0;
+      const isWeekend = dow === 0 || dow === 6;
+      const beyondHorizon = isHorizonReached(viewYear, viewMonth, d);
+
+      if (isPast || isWeekend || beyondHorizon) {
+        btn.disabled = true;
+      }
+      const dateStr = ymd(viewYear, viewMonth, d);
+      if (today.y === viewYear && today.m === viewMonth && today.d === d) {
+        btn.classList.add('cal-today');
+      }
+      if (selectedDate === dateStr) {
+        btn.classList.add('cal-selected');
+      }
+
+      btn.addEventListener('click', () => {
+        if (btn.disabled) return;
+        selectedDate = dateStr;
+        renderCalendar();
+        loadSlots(dateStr);
+      });
+
+      calGrid.appendChild(btn);
+    }
+
+    // Disable prev if it would go before this month.
+    const atCurrentMonth = viewYear === today.y && viewMonth === today.m;
+    prevBtn.disabled = atCurrentMonth;
+    // Disable next if first day of next month is beyond horizon.
+    const nextY = viewMonth === 12 ? viewYear + 1 : viewYear;
+    const nextM = viewMonth === 12 ? 1 : viewMonth + 1;
+    nextBtn.disabled = isHorizonReached(nextY, nextM, 1);
+  }
+
+  prevBtn.addEventListener('click', () => {
+    if (prevBtn.disabled) return;
+    if (viewMonth === 1) { viewMonth = 12; viewYear -= 1; }
+    else viewMonth -= 1;
+    renderCalendar();
+  });
+  nextBtn.addEventListener('click', () => {
+    if (nextBtn.disabled) return;
+    if (viewMonth === 12) { viewMonth = 1; viewYear += 1; }
+    else viewMonth += 1;
+    renderCalendar();
+  });
+
+  function fmtDateForTitle(dateStr: string): string {
+    const [y, m, d] = dateStr.split('-').map(Number);
+    return new Date(y!, m! - 1, d!).toLocaleDateString('en-US', {
+      weekday: 'long', month: 'long', day: 'numeric',
+    });
+  }
+
+  function fmtFullSlotLabel(startISO: string): string {
+    const date = new Date(startISO);
+    const datePart = date.toLocaleDateString('en-US', {
+      timeZone: TZ, weekday: 'long', month: 'long', day: 'numeric',
+    });
+    const timePart = date.toLocaleTimeString('en-US', {
+      timeZone: TZ, hour: 'numeric', minute: '2-digit', hour12: true,
+    });
+    return `${datePart} at ${timePart} ET`;
+  }
+
+  async function loadSlots(dateStr: string) {
+    slotsTitle.textContent = fmtDateForTitle(dateStr);
+    slotsList.innerHTML = '<p class="col-span-2 text-sm text-[var(--color-text-muted)] py-6">Loading times…</p>';
+    try {
+      const res = await fetch(`/api/availability?date=${encodeURIComponent(dateStr)}`);
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        slotsList.innerHTML = `<p class="col-span-2 text-sm text-[var(--color-gold)] py-6">${json.error || 'Could not load times.'}</p>`;
+        return;
+      }
+      const slots = (json.slots as SlotRow[]) || [];
+      renderSlots(slots);
+    } catch {
+      slotsList.innerHTML = '<p class="col-span-2 text-sm text-[var(--color-gold)] py-6">Network error. Please try again.</p>';
+    }
+  }
+
+  function renderSlots(slots: SlotRow[]) {
+    if (slots.length === 0) {
+      slotsList.innerHTML = '<p class="col-span-2 text-sm text-[var(--color-text-muted)] py-6">No times available on this date.</p>';
+      return;
+    }
+    const allTaken = slots.every((s) => !s.available);
+    slotsList.innerHTML = '';
+    if (allTaken) {
+      const note = document.createElement('p');
+      note.className = 'col-span-2 text-sm text-[var(--color-text-muted)] mb-2';
+      note.textContent = 'All times booked on this date. Try another.';
+      slotsList.appendChild(note);
+    }
+    for (const s of slots) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'slot-btn';
+      btn.textContent = s.label;
+      btn.disabled = !s.available;
+      btn.addEventListener('click', () => {
+        if (btn.disabled) return;
+        chooseSlot(s);
+      });
+      slotsList.appendChild(btn);
+    }
+  }
+
+  function chooseSlot(slot: SlotRow) {
+    startISOInput.value = slot.startISO;
+    selectedSlotLabel.textContent = fmtFullSlotLabel(slot.startISO);
+    picker.classList.add('hidden');
+    form.classList.remove('hidden');
+    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  changeSlotBtn.addEventListener('click', () => {
+    form.classList.add('hidden');
+    picker.classList.remove('hidden');
+    startISOInput.value = '';
+    statusEl.textContent = '';
+    picker.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!form.checkValidity()) {
+      statusEl.textContent = 'Please fill out the required fields.';
+      statusEl.style.color = 'var(--color-gold)';
+      form.reportValidity();
+      return;
+    }
+    submitBtn.disabled = true;
+    const original = submitBtn.textContent;
+    submitBtn.textContent = 'Booking…';
+    statusEl.textContent = '';
+
+    const data = Object.fromEntries(new FormData(form).entries());
+    try {
+      const res = await fetch('/api/book', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json.error || `Booking failed (${res.status}).`);
+
+      successEmail.textContent = String(data.email || '');
+      successWhen.textContent = fmtFullSlotLabel(String(data.startISO));
+      form.hidden = true;
+      successEl.hidden = false;
+      successEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (err) {
+      statusEl.textContent = err instanceof Error ? err.message : 'Something went wrong.';
+      statusEl.style.color = 'var(--color-gold)';
+      submitBtn.disabled = false;
+      submitBtn.textContent = original;
+    }
+  });
+
+  renderCalendar();
+</script>

@@ -78,6 +78,7 @@ export const prerender = false;
               <th class="text-left px-4 py-3 font-semibold text-[0.65rem] uppercase tracking-[0.15em]">Name</th>
               <th class="text-left px-4 py-3 font-semibold text-[0.65rem] uppercase tracking-[0.15em]">Email</th>
               <th class="text-left px-4 py-3 font-semibold text-[0.65rem] uppercase tracking-[0.15em]">Mobile</th>
+              <th class="text-left px-4 py-3 font-semibold text-[0.65rem] uppercase tracking-[0.15em]">Appointment</th>
               <th class="text-left px-4 py-3 font-semibold text-[0.65rem] uppercase tracking-[0.15em]">Message</th>
               <th class="text-left px-4 py-3 font-semibold text-[0.65rem] uppercase tracking-[0.15em]">Status</th>
               <th class="text-left px-4 py-3 font-semibold text-[0.65rem] uppercase tracking-[0.15em]">Notes</th>
@@ -85,7 +86,7 @@ export const prerender = false;
             </tr>
           </thead>
           <tbody id="leads-tbody" class="divide-y divide-[var(--color-cream)]/8 text-[var(--color-cream)]">
-            <tr><td colspan="8" class="px-4 py-8 text-center text-[var(--color-text-muted)]">Loading leads…</td></tr>
+            <tr><td colspan="9" class="px-4 py-8 text-center text-[var(--color-text-muted)]">Loading leads…</td></tr>
           </tbody>
         </table>
       </div>
@@ -194,7 +195,7 @@ export const prerender = false;
       leadCount.textContent = `${filtered.length} of ${leads.length} lead${leads.length === 1 ? '' : 's'} · ${newCount} new`;
 
       if (filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" class="px-4 py-12 text-center text-[var(--color-text-muted)]">No leads match this filter.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" class="px-4 py-12 text-center text-[var(--color-text-muted)]">No leads match this filter.</td></tr>';
         return;
       }
 
@@ -204,6 +205,7 @@ export const prerender = false;
           <td class="px-4 py-3 font-medium">${escapeHtml(l.name)}</td>
           <td class="px-4 py-3"><a class="hover:text-[var(--color-gold)] underline decoration-transparent hover:decoration-[var(--color-gold)]/40 underline-offset-2 transition" href="mailto:${escapeHtml(l.email)}">${escapeHtml(l.email)}</a></td>
           <td class="px-4 py-3 text-[var(--color-text-muted)]">${l.mobile ? `<a class="hover:text-[var(--color-gold)]" href="tel:${escapeHtml(l.mobile)}">${escapeHtml(l.mobile)}</a>` : '—'}</td>
+          <td class="px-4 py-3 text-xs whitespace-nowrap ${l.appointment ? 'text-[var(--color-gold)]' : 'text-[var(--color-text-muted)]'}">${l.appointment ? escapeHtml(l.appointment) : '—'}</td>
           <td class="px-4 py-3 text-[var(--color-text-muted)] max-w-md">
             <button type="button" class="msg-toggle text-left hover:text-[var(--color-cream)] transition">${escapeHtml(truncate(l.message, 90))}</button>
           </td>
@@ -237,7 +239,7 @@ export const prerender = false;
         allLeads = json.leads ?? [];
         render(allLeads);
       } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="8" class="px-4 py-8 text-center text-[var(--color-gold)]">Could not load leads. ${escapeHtml(err.message || '')}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" class="px-4 py-8 text-center text-[var(--color-gold)]">Could not load leads. ${escapeHtml(err.message || '')}</td></tr>`;
         leadCount.textContent = '';
       }
     }
