@@ -9,7 +9,7 @@ export default defineConfig({
   site: 'https://amploconsulting.com',
   output: 'static',
   adapter: vercel({
-    webAnalytics: { enabled: false },
+    webAnalytics: { enabled: true },
   }),
   integrations: [sitemap()],
   vite: {
