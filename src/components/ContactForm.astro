@@ -103,24 +103,25 @@
   }
   .field-input {
     width: 100%;
-    background: color-mix(in oklab, var(--color-navy-elevated) 70%, transparent);
-    border: 1px solid color-mix(in oklab, var(--color-cream) 14%, transparent);
+    background: color-mix(in oklab, #ffffff 4%, var(--color-navy));
+    border: 1px solid color-mix(in oklab, var(--color-cream) 22%, transparent);
     border-radius: 4px;
     padding: 0.95rem 1rem;
     font-family: var(--font-sans);
     font-size: 0.95rem;
     color: var(--color-cream);
-    transition: border-color 200ms ease, background 200ms ease;
+    transition: border-color 200ms ease, background 200ms ease, box-shadow 200ms ease;
   }
   .field-input::placeholder {
-    color: color-mix(in oklab, var(--color-text-muted) 75%, transparent);
+    color: color-mix(in oklab, var(--color-cream) 45%, transparent);
   }
   .field-input:hover {
-    border-color: color-mix(in oklab, var(--color-cream) 22%, transparent);
+    border-color: color-mix(in oklab, var(--color-cream) 38%, transparent);
   }
   .field-input:focus {
     border-color: var(--color-gold);
-    background: color-mix(in oklab, var(--color-navy-elevated) 85%, transparent);
+    background: color-mix(in oklab, #ffffff 6%, var(--color-navy));
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-gold) 18%, transparent);
     outline: none;
   }
 </style>
