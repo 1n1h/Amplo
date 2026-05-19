@@ -1,8 +1,9 @@
 ---
 const navLinks = [
-  { href: '#about', label: 'About' },
-  { href: '#services', label: 'Services' },
-  { href: '#contact', label: 'Contact' },
+  { href: '/#about', label: 'About' },
+  { href: '/#services', label: 'Services' },
+  { href: '/#reviews', label: 'Testimonials' },
+  { href: '/#contact', label: 'Contact' },
 ];
 ---
 
@@ -12,7 +13,7 @@ const navLinks = [
   data-scrolled="false"
 >
   <div class="container-site flex items-center justify-between py-5 md:py-6">
-    <a href="#top" class="wordmark text-2xl md:text-[1.625rem]" aria-label="Amplo Consulting — home">
+    <a href="/" class="wordmark text-2xl md:text-[1.625rem]" aria-label="Amplo Consulting — home">
       Amplo<span class="dot">.</span>
     </a>
 
@@ -27,7 +28,7 @@ const navLinks = [
     </nav>
 
     <div class="hidden md:block">
-      <a href="#contact" class="btn-primary">Get in Touch</a>
+      <a href="/#contact" class="btn-primary">Get in Touch</a>
     </div>
 
     <button
@@ -61,7 +62,7 @@ const navLinks = [
           </a>
         ))
       }
-      <a href="#contact" class="btn-primary mt-6 w-full" data-mobile-link>
+      <a href="/#contact" class="btn-primary mt-6 w-full" data-mobile-link>
         Get in Touch
       </a>
     </nav>
