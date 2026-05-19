@@ -5,7 +5,7 @@ import { isAuthenticated } from './lib/session';
 const PUBLIC_ADMIN_PATHS = new Set<string>([
   '/admin/login',
   '/admin/login/',
-  '/api/admin/login',
+  '/api/admin/google-login',
 ]);
 
 export const onRequest = defineMiddleware(async (context, next) => {

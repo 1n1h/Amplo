@@ -18,6 +18,14 @@ export function optionalEnv(name: string, fallback = ''): string {
   return read(name) ?? fallback;
 }
 
+export function getAllowedAdminEmails(): string[] {
+  const raw = requireEnv('ADMIN_ALLOWED_EMAILS');
+  return raw
+    .split(',')
+    .map((s) => s.trim().toLowerCase())
+    .filter((s) => s.length > 0);
+}
+
 export function getServiceAccount(): { email: string; privateKey: string } {
   const email = requireEnv('GOOGLE_SERVICE_ACCOUNT_EMAIL');
   const raw = requireEnv('GOOGLE_SERVICE_ACCOUNT_KEY');
