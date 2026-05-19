@@ -1,0 +1,107 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { isAuthenticated } from '../../lib/session';
+
+export const prerender = false;
+
+if (isAuthenticated(Astro.cookies)) {
+  return Astro.redirect('/admin', 302);
+}
+---
+
+<AdminLayout title="Admin login — Amplo Consulting">
+  <main class="min-h-screen flex items-center justify-center p-6">
+    <div class="w-full max-w-sm">
+      <a href="/" class="wordmark text-xl block text-center mb-10" aria-label="Amplo Consulting">
+        Amplo<span class="dot">.</span>
+      </a>
+
+      <div class="rounded-md border border-[var(--color-cream)]/10 bg-[var(--color-navy-elevated)] p-8">
+        <p class="text-[0.7rem] font-semibold uppercase tracking-[0.15em] text-[var(--color-gold)]">
+          Admin Access
+        </p>
+        <h1 class="mt-3 text-2xl">Sign in</h1>
+
+        <form id="login-form" class="mt-6 flex flex-col gap-4" novalidate>
+          <label class="flex flex-col gap-2">
+            <span class="text-[0.7rem] font-semibold uppercase tracking-[0.15em] text-[var(--color-cream)]">
+              Password
+            </span>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autocomplete="current-password"
+              required
+              autofocus
+              class="w-full rounded-sm border border-[var(--color-cream)]/15 bg-[var(--color-navy)]/80 px-3.5 py-3 text-base text-[var(--color-cream)] focus:border-[var(--color-gold)] focus:outline-none"
+            />
+          </label>
+
+          <p id="login-error" class="hidden text-sm text-[var(--color-gold)]" role="alert"></p>
+
+          <button id="login-submit" type="submit" class="btn-primary mt-2">
+            Sign in
+          </button>
+        </form>
+
+        <a
+          href="/"
+          class="mt-6 block text-center text-xs uppercase tracking-[0.15em] text-[var(--color-text-muted)] hover:text-[var(--color-gold)] transition"
+        >
+          ← Back to site
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const form = document.getElementById('login-form') as HTMLFormElement | null;
+    const passwordInput = document.getElementById('password') as HTMLInputElement | null;
+    const errorEl = document.getElementById('login-error');
+    const submitBtn = document.getElementById('login-submit') as HTMLButtonElement | null;
+
+    function showError(msg: string) {
+      if (!errorEl) return;
+      errorEl.textContent = msg;
+      errorEl.classList.remove('hidden');
+    }
+    function hideError() {
+      errorEl?.classList.add('hidden');
+    }
+
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!passwordInput || !submitBtn) return;
+      hideError();
+
+      const password = passwordInput.value;
+      if (!password) {
+        showError('Please enter your password.');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      const originalLabel = submitBtn.textContent;
+      submitBtn.textContent = 'Signing in...';
+
+      try {
+        const res = await fetch('/api/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password }),
+        });
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          throw new Error(json.error || 'Login failed.');
+        }
+        window.location.href = '/admin';
+      } catch (err) {
+        showError(err instanceof Error ? err.message : 'Login failed.');
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalLabel;
+        passwordInput.select();
+      }
+    });
+  </script>
+</AdminLayout>

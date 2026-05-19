@@ -1,0 +1,358 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { VALID_STATUSES } from '../../lib/sheets';
+
+export const prerender = false;
+---
+
+<AdminLayout title="Leads — Amplo Admin">
+  <div class="min-h-screen flex flex-col">
+    <header class="border-b border-[var(--color-cream)]/10">
+      <div class="container-site flex items-center justify-between py-4">
+        <div class="flex items-center gap-4">
+          <a href="/" class="wordmark text-lg" aria-label="Amplo Consulting">
+            Amplo<span class="dot">.</span>
+          </a>
+          <span class="text-[0.7rem] font-semibold uppercase tracking-[0.15em] text-[var(--color-gold)]">
+            Admin · Leads
+          </span>
+        </div>
+        <button
+          id="logout-btn"
+          class="text-[0.7rem] font-semibold uppercase tracking-[0.15em] text-[var(--color-text-muted)] hover:text-[var(--color-gold)] transition"
+        >
+          Logout
+        </button>
+      </div>
+    </header>
+
+    <main class="container-site flex-1 py-8">
+      <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
+        <div class="flex flex-wrap items-center gap-3">
+          <label class="flex items-center gap-2">
+            <span class="text-[0.7rem] font-semibold uppercase tracking-[0.15em] text-[var(--color-text-muted)]">
+              Status
+            </span>
+            <select
+              id="filter-status"
+              class="rounded-sm border border-[var(--color-cream)]/15 bg-[var(--color-navy-elevated)] px-3 py-2 text-sm text-[var(--color-cream)] focus:border-[var(--color-gold)] focus:outline-none"
+            >
+              <option value="all">All</option>
+              {VALID_STATUSES.map((s) => <option value={s}>{s}</option>)}
+            </select>
+          </label>
+
+          <input
+            id="filter-search"
+            type="search"
+            placeholder="Search name, email, message…"
+            class="w-72 max-w-full rounded-sm border border-[var(--color-cream)]/15 bg-[var(--color-navy-elevated)] px-3 py-2 text-sm text-[var(--color-cream)] focus:border-[var(--color-gold)] focus:outline-none"
+          />
+        </div>
+
+        <div class="flex items-center gap-3">
+          <button
+            id="refresh-btn"
+            class="text-[0.7rem] font-semibold uppercase tracking-[0.15em] px-3 py-2 border border-[var(--color-cream)]/15 rounded-sm text-[var(--color-cream)] hover:border-[var(--color-gold)] hover:text-[var(--color-gold)] transition"
+          >
+            Refresh
+          </button>
+          <button
+            id="export-btn"
+            class="text-[0.7rem] font-semibold uppercase tracking-[0.15em] px-3 py-2 bg-[var(--color-gold)] text-[var(--color-navy)] rounded-sm hover:bg-[var(--color-gold-hover)] transition"
+          >
+            Download CSV
+          </button>
+        </div>
+      </div>
+
+      <p id="lead-count" class="text-[0.75rem] uppercase tracking-[0.15em] text-[var(--color-text-muted)] mb-3">
+        Loading…
+      </p>
+
+      <div class="overflow-x-auto rounded-md border border-[var(--color-cream)]/10">
+        <table class="w-full text-sm">
+          <thead class="bg-[var(--color-navy-elevated)] text-[var(--color-text-muted)]">
+            <tr>
+              <th class="text-left px-4 py-3 font-semibold text-[0.65rem] uppercase tracking-[0.15em]">When</th>
+              <th class="text-left px-4 py-3 font-semibold text-[0.65rem] uppercase tracking-[0.15em]">Name</th>
+              <th class="text-left px-4 py-3 font-semibold text-[0.65rem] uppercase tracking-[0.15em]">Email</th>
+              <th class="text-left px-4 py-3 font-semibold text-[0.65rem] uppercase tracking-[0.15em]">Mobile</th>
+              <th class="text-left px-4 py-3 font-semibold text-[0.65rem] uppercase tracking-[0.15em]">Message</th>
+              <th class="text-left px-4 py-3 font-semibold text-[0.65rem] uppercase tracking-[0.15em]">Status</th>
+              <th class="text-left px-4 py-3 font-semibold text-[0.65rem] uppercase tracking-[0.15em]">Notes</th>
+              <th class="text-left px-4 py-3 font-semibold text-[0.65rem] uppercase tracking-[0.15em]">Updated</th>
+            </tr>
+          </thead>
+          <tbody id="leads-tbody" class="divide-y divide-[var(--color-cream)]/8 text-[var(--color-cream)]">
+            <tr><td colspan="8" class="px-4 py-8 text-center text-[var(--color-text-muted)]">Loading leads…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+
+    <dialog
+      id="message-modal"
+      class="rounded-md border border-[var(--color-cream)]/15 bg-[var(--color-navy-elevated)] text-[var(--color-cream)] max-w-2xl w-full p-0 backdrop:bg-black/70"
+    >
+      <div class="p-6">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <p id="modal-from" class="text-[0.7rem] font-semibold uppercase tracking-[0.15em] text-[var(--color-gold)]"></p>
+            <h2 id="modal-name" class="mt-2 text-xl"></h2>
+            <p id="modal-email" class="mt-1 text-sm text-[var(--color-text-muted)]"></p>
+          </div>
+          <button
+            id="modal-close"
+            class="text-[var(--color-text-muted)] hover:text-[var(--color-gold)]"
+            aria-label="Close"
+          >
+            ✕
+          </button>
+        </div>
+        <pre
+          id="modal-message"
+          class="mt-6 whitespace-pre-wrap text-sm leading-relaxed text-[var(--color-cream)] font-[var(--font-sans)]"
+        ></pre>
+      </div>
+    </dialog>
+  </div>
+
+  <style>
+    select option { background: var(--color-navy-elevated); color: var(--color-cream); }
+    .status-pill {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      border-radius: 2px;
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .status-new { background: color-mix(in oklab, var(--color-gold) 25%, transparent); color: var(--color-gold); }
+    .status-contacted { background: color-mix(in oklab, var(--color-periwinkle) 25%, transparent); color: var(--color-periwinkle); }
+    .status-qualified { background: color-mix(in oklab, #7fd1a1 25%, transparent); color: #a8e0bf; }
+    .status-closed-won { background: color-mix(in oklab, #5ac46d 35%, transparent); color: #c7eed0; }
+    .status-closed-lost { background: color-mix(in oklab, #c47075 25%, transparent); color: #e8c1c3; }
+    .row-saved { background: color-mix(in oklab, var(--color-gold) 8%, transparent); transition: background 600ms ease; }
+  </style>
+
+  <script define:vars={{ statuses: VALID_STATUSES }}>
+    const tbody = document.getElementById('leads-tbody');
+    const filterStatus = document.getElementById('filter-status');
+    const filterSearch = document.getElementById('filter-search');
+    const refreshBtn = document.getElementById('refresh-btn');
+    const exportBtn = document.getElementById('export-btn');
+    const leadCount = document.getElementById('lead-count');
+    const logoutBtn = document.getElementById('logout-btn');
+    const modal = document.getElementById('message-modal');
+    const modalClose = document.getElementById('modal-close');
+    const modalName = document.getElementById('modal-name');
+    const modalEmail = document.getElementById('modal-email');
+    const modalFrom = document.getElementById('modal-from');
+    const modalMessage = document.getElementById('modal-message');
+
+    let allLeads = [];
+
+    function fmtTimestamp(iso) {
+      if (!iso) return '';
+      const d = new Date(iso);
+      if (isNaN(d.valueOf())) return iso;
+      return d.toLocaleString('en-US', {
+        month: 'short', day: 'numeric', year: 'numeric',
+        hour: 'numeric', minute: '2-digit',
+      }).replace(',', ' ·');
+    }
+
+    function truncate(s, max) {
+      if (!s) return '';
+      return s.length > max ? s.slice(0, max - 1) + '…' : s;
+    }
+
+    function escapeHtml(s) {
+      const div = document.createElement('div');
+      div.textContent = s ?? '';
+      return div.innerHTML;
+    }
+
+    function applyFilters(leads) {
+      const status = filterStatus.value;
+      const q = filterSearch.value.trim().toLowerCase();
+      return leads.filter((l) => {
+        if (status !== 'all' && l.status !== status) return false;
+        if (q) {
+          const hay = `${l.name} ${l.email} ${l.message}`.toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      });
+    }
+
+    function render(leads) {
+      const filtered = applyFilters(leads);
+      const newCount = leads.filter((l) => l.status === 'New').length;
+      leadCount.textContent = `${filtered.length} of ${leads.length} lead${leads.length === 1 ? '' : 's'} · ${newCount} new`;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="px-4 py-12 text-center text-[var(--color-text-muted)]">No leads match this filter.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = filtered.map((l) => `
+        <tr data-row="${l.rowNumber}">
+          <td class="px-4 py-3 text-xs text-[var(--color-text-muted)] whitespace-nowrap">${escapeHtml(fmtTimestamp(l.timestamp))}</td>
+          <td class="px-4 py-3 font-medium">${escapeHtml(l.name)}</td>
+          <td class="px-4 py-3"><a class="hover:text-[var(--color-gold)] underline decoration-transparent hover:decoration-[var(--color-gold)]/40 underline-offset-2 transition" href="mailto:${escapeHtml(l.email)}">${escapeHtml(l.email)}</a></td>
+          <td class="px-4 py-3 text-[var(--color-text-muted)]">${l.mobile ? `<a class="hover:text-[var(--color-gold)]" href="tel:${escapeHtml(l.mobile)}">${escapeHtml(l.mobile)}</a>` : '—'}</td>
+          <td class="px-4 py-3 text-[var(--color-text-muted)] max-w-md">
+            <button type="button" class="msg-toggle text-left hover:text-[var(--color-cream)] transition">${escapeHtml(truncate(l.message, 90))}</button>
+          </td>
+          <td class="px-4 py-3">
+            <select class="status-select rounded-sm border border-[var(--color-cream)]/15 bg-[var(--color-navy-elevated)] px-2 py-1.5 text-xs">
+              ${statuses.map((s) => `<option value="${s}" ${s === l.status ? 'selected' : ''}>${s}</option>`).join('')}
+            </select>
+          </td>
+          <td class="px-4 py-3 min-w-[200px]">
+            <textarea
+              class="notes-input w-full rounded-sm border border-[var(--color-cream)]/10 bg-[var(--color-navy)]/70 px-2 py-1.5 text-xs text-[var(--color-cream)] focus:border-[var(--color-gold)] focus:outline-none resize-y"
+              rows="2"
+              placeholder="Add a note…"
+            >${escapeHtml(l.notes)}</textarea>
+          </td>
+          <td class="px-4 py-3 text-xs text-[var(--color-text-muted)] whitespace-nowrap">${escapeHtml(fmtTimestamp(l.lastUpdated))}</td>
+        </tr>
+      `).join('');
+    }
+
+    async function loadLeads() {
+      leadCount.textContent = 'Loading…';
+      try {
+        const res = await fetch('/api/admin/leads');
+        if (res.status === 401) {
+          window.location.href = '/admin/login';
+          return;
+        }
+        if (!res.ok) throw new Error(`Failed (${res.status})`);
+        const json = await res.json();
+        allLeads = json.leads ?? [];
+        render(allLeads);
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="8" class="px-4 py-8 text-center text-[var(--color-gold)]">Could not load leads. ${escapeHtml(err.message || '')}</td></tr>`;
+        leadCount.textContent = '';
+      }
+    }
+
+    async function patchLead(rowNumber, payload) {
+      const res = await fetch(`/api/admin/leads/${rowNumber}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (res.status === 401) {
+        window.location.href = '/admin/login';
+        return null;
+      }
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json.error || `Update failed (${res.status})`);
+      return json;
+    }
+
+    function flashRow(tr) {
+      tr.classList.add('row-saved');
+      setTimeout(() => tr.classList.remove('row-saved'), 700);
+    }
+
+    tbody.addEventListener('change', async (e) => {
+      const target = e.target;
+      if (!(target instanceof HTMLSelectElement) || !target.classList.contains('status-select')) return;
+      const tr = target.closest('tr');
+      const rowNumber = Number(tr?.dataset.row);
+      const lead = allLeads.find((l) => l.rowNumber === rowNumber);
+      if (!lead) return;
+      const original = lead.status;
+      lead.status = target.value;
+      try {
+        const result = await patchLead(rowNumber, { status: target.value });
+        if (result?.lastUpdated) lead.lastUpdated = result.lastUpdated;
+        flashRow(tr);
+        render(allLeads);
+      } catch (err) {
+        lead.status = original;
+        target.value = original;
+        alert(err.message || 'Update failed.');
+      }
+    });
+
+    tbody.addEventListener('blur', async (e) => {
+      const target = e.target;
+      if (!(target instanceof HTMLTextAreaElement) || !target.classList.contains('notes-input')) return;
+      const tr = target.closest('tr');
+      const rowNumber = Number(tr?.dataset.row);
+      const lead = allLeads.find((l) => l.rowNumber === rowNumber);
+      if (!lead) return;
+      const next = target.value;
+      if (next === lead.notes) return;
+      const original = lead.notes;
+      lead.notes = next;
+      try {
+        const result = await patchLead(rowNumber, { notes: next });
+        if (result?.lastUpdated) lead.lastUpdated = result.lastUpdated;
+        flashRow(tr);
+        // Re-render only the timestamp cell to avoid losing focus elsewhere
+        const updatedCell = tr.querySelector('td:last-child');
+        if (updatedCell && result?.lastUpdated) {
+          updatedCell.textContent = fmtTimestamp(result.lastUpdated);
+        }
+        leadCount.textContent = leadCount.textContent;
+      } catch (err) {
+        lead.notes = original;
+        target.value = original;
+        alert(err.message || 'Update failed.');
+      }
+    }, true);
+
+    tbody.addEventListener('click', (e) => {
+      const target = e.target;
+      if (!(target instanceof HTMLElement) || !target.classList.contains('msg-toggle')) return;
+      const tr = target.closest('tr');
+      const rowNumber = Number(tr?.dataset.row);
+      const lead = allLeads.find((l) => l.rowNumber === rowNumber);
+      if (!lead) return;
+      modalName.textContent = lead.name;
+      modalEmail.textContent = lead.email;
+      modalFrom.textContent = fmtTimestamp(lead.timestamp);
+      modalMessage.textContent = lead.message;
+      modal.showModal();
+    });
+
+    modalClose?.addEventListener('click', () => modal.close());
+    modal?.addEventListener('click', (e) => {
+      const rect = modal.getBoundingClientRect();
+      const inside =
+        e.clientX >= rect.left && e.clientX <= rect.right &&
+        e.clientY >= rect.top && e.clientY <= rect.bottom;
+      if (!inside) modal.close();
+    });
+
+    filterStatus.addEventListener('change', () => render(allLeads));
+    filterSearch.addEventListener('input', () => render(allLeads));
+    refreshBtn.addEventListener('click', loadLeads);
+
+    exportBtn.addEventListener('click', () => {
+      const params = new URLSearchParams();
+      const s = filterStatus.value;
+      const q = filterSearch.value.trim();
+      if (s && s !== 'all') params.set('status', s);
+      if (q) params.set('q', q);
+      const qs = params.toString();
+      window.location.href = `/api/admin/export${qs ? `?${qs}` : ''}`;
+    });
+
+    logoutBtn?.addEventListener('click', async () => {
+      await fetch('/api/admin/logout', { method: 'POST' });
+      window.location.href = '/admin/login';
+    });
+
+    loadLeads();
+  </script>
+</AdminLayout>
