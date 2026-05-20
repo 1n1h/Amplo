@@ -1,14 +1,25 @@
 ---
 import Eyebrow from './Eyebrow.astro';
+import { InteractiveLight } from './InteractiveLight';
+
+// Split each phrase into words so we can stagger their reveal with CSS variables.
+// Source case is preserved for readability; CSS renders this all-caps.
+const phraseOne = 'Focus on building.'.split(' ');
+const phraseTwo = "We'll handle the rest.".split(' ');
+const allWords = [...phraseOne, ...phraseTwo];
 ---
 
 <section
   id="top"
-  class="relative pt-36 pb-28 lg:pt-44 lg:pb-40 overflow-hidden"
+  class="hero-shell relative pt-36 pb-28 lg:pt-44 lg:pb-40 overflow-hidden"
   style="background:
     radial-gradient(ellipse 90% 65% at 50% 18%, color-mix(in oklab, var(--color-navy-elevated) 55%, transparent) 0%, transparent 65%),
     linear-gradient(to bottom, var(--color-navy) 0%, #060f24 100%);"
 >
+  <!-- Cursor-tracked gold light. Sits below the static blur blobs and content. -->
+  <InteractiveLight client:visible shineColor="#c9a961" lampHeight="6vh" lampWidth="6vh" transitionDuration={720} opacity={0.5} />
+
+  <!-- Static atmospheric blur blobs for visitors with reduced motion / no JS. -->
   <div aria-hidden="true" class="pointer-events-none absolute inset-0 -z-10">
     <div
       class="absolute -top-40 -right-40 h-[500px] w-[500px] rounded-full blur-[120px]"
@@ -22,32 +33,176 @@ import Eyebrow from './Eyebrow.astro';
     </div>
   </div>
 
-  <div class="container-site text-center">
+  <div class="relative container-site text-center">
     <div class="fade-up mb-10">
       <Eyebrow label="Welcome to Amplo Consulting" variant="flanked" align="center" />
     </div>
 
     <h1
-      class="fade-up mx-auto max-w-4xl text-balance text-5xl leading-[1.05] sm:text-6xl lg:text-[88px] mb-10"
-      style="transition-delay: 80ms;"
+      class="hero-headline mx-auto max-w-5xl text-balance text-5xl font-semibold leading-[1.12] sm:text-6xl lg:text-[88px] mb-10 uppercase"
     >
-      We help companies <em>grow with purpose.</em>
+      {
+        phraseOne.map((word, i) => (
+          <span class="word" style={`--word-index: ${i};`}>
+            <span class="word-inner">{word}</span>
+          </span>
+        ))
+      }
+      <em>
+        {
+          phraseTwo.map((word, i) => (
+            <span class="word" style={`--word-index: ${phraseOne.length + i};`}>
+              <span class="word-inner">{word}</span>
+            </span>
+          ))
+        }
+      </em>
     </h1>
 
     <p
-      class="fade-up mx-auto max-w-xl text-lg text-[var(--color-text-muted)] mb-12"
-      style="transition-delay: 160ms;"
+      class="fade-up mx-auto max-w-2xl text-lg md:text-xl font-medium text-[var(--color-cream)]/85 mb-12"
+      style={`transition-delay: ${allWords.length * 80 + 220}ms;`}
     >
-      Comprehensive legal, compliance, and business strategy for startups and
-      technology companies navigating complex environments.
+      Privacy, contracts, and the operational stuff that gets in your way.
     </p>
 
     <div
       class="fade-up flex flex-col items-center justify-center gap-4 sm:flex-row"
-      style="transition-delay: 240ms;"
+      style={`transition-delay: ${allWords.length * 80 + 320}ms;`}
     >
       <a href="#services" class="btn-primary">Our Services</a>
       <a href="#contact" class="btn-secondary">Get in Touch</a>
     </div>
   </div>
+
+  <!-- Scroll-down cue -->
+  <a
+    href="#about"
+    class="scroll-cue"
+    aria-label="Scroll to learn more"
+  >
+    <span class="scroll-cue-label">Scroll</span>
+    <span class="scroll-cue-line" aria-hidden="true">
+      <span class="scroll-cue-line-fill"></span>
+    </span>
+  </a>
 </section>
+
+<style>
+  /* Per-word reveal — each word slides up + fades in, staggered by index.
+     The animation kicks off automatically on page load. */
+  .hero-headline {
+    /* All-caps display: slight positive tracking + tightened cap-height ascent
+       so letters breathe without looking spaced out. */
+    letter-spacing: 0.01em;
+  }
+  .hero-headline em {
+    /* Italic gold caps tilt slightly — adjust optical balance vs the upright caps. */
+    letter-spacing: 0.005em;
+  }
+  .hero-headline .word {
+    display: inline-block;
+    /* `overflow: clip` with a negative bottom margin allows descenders
+       (g, p, y) to render below the line box while still clipping the rising
+       animation from above. Falls back to overflow: hidden on browsers
+       without clip support. */
+    overflow: hidden;
+    overflow: clip;
+    overflow-clip-margin: 0.3em;
+    vertical-align: baseline;
+    padding-bottom: 0.05em;
+  }
+  .hero-headline .word:not(:last-child) {
+    margin-right: 0.18em;
+  }
+  .hero-headline .word-inner {
+    display: inline-block;
+    transform: translateY(110%) skewY(6deg);
+    opacity: 0;
+    will-change: transform, opacity;
+    animation: hero-word-rise 900ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation-delay: calc(var(--word-index, 0) * 80ms + 200ms);
+  }
+  @keyframes hero-word-rise {
+    0% {
+      transform: translateY(110%) skewY(6deg);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0) skewY(0);
+      opacity: 1;
+    }
+  }
+
+  /* Scroll-down cue — anchored bottom-center, subtle */
+  .scroll-cue {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.65rem;
+    text-decoration: none;
+    color: var(--color-text-muted);
+    opacity: 0;
+    animation: scroll-cue-in 700ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation-delay: 1600ms;
+    transition: color 250ms ease;
+  }
+  .scroll-cue:hover {
+    color: var(--color-gold);
+  }
+  .scroll-cue-label {
+    font-family: var(--font-sans);
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+  }
+  .scroll-cue-line {
+    position: relative;
+    display: block;
+    width: 1px;
+    height: 2.5rem;
+    background: color-mix(in oklab, currentColor 25%, transparent);
+    overflow: hidden;
+  }
+  .scroll-cue-line-fill {
+    position: absolute;
+    top: -100%;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--color-gold);
+    animation: scroll-cue-drip 2.4s ease-in-out infinite;
+  }
+  @keyframes scroll-cue-in {
+    from { opacity: 0; transform: translate(-50%, 8px); }
+    to   { opacity: 1; transform: translate(-50%, 0); }
+  }
+  @keyframes scroll-cue-drip {
+    0% { top: -100%; }
+    50% { top: 100%; }
+    100% { top: 100%; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-headline .word-inner {
+      animation: none;
+      transform: none;
+      opacity: 1;
+    }
+    .scroll-cue {
+      animation: none;
+      opacity: 1;
+    }
+    .scroll-cue-line-fill {
+      animation: none;
+      top: 0;
+      height: 30%;
+      opacity: 0.6;
+    }
+  }
+</style>

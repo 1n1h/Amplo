@@ -75,16 +75,17 @@ function encodeRange(range: string): string {
     .replace(/\?/g, '%3F');
 }
 
+// 8-column sheet schema:
+// A=Timestamp  B=Name  C=Email  D=Mobile  E=Industry  F=Notes  G=Status  H=Appointment
 export interface LeadRow {
   rowNumber: number; // 1-indexed sheet row (row 2 is the first data row, row 1 is header)
   timestamp: string;
   name: string;
   email: string;
   mobile: string;
-  message: string;
-  status: string;
+  industry: string;
   notes: string;
-  lastUpdated: string;
+  status: string;
   appointment: string;
 }
 
@@ -113,7 +114,11 @@ export interface AppendLeadInput {
   name: string;
   email: string;
   mobile: string;
-  message: string;
+  /** Industry selected on the booking form (or empty for legacy contact form). */
+  industry?: string;
+  /** Free-text notes. Used for the "Tell us more" follow-up on the booking form,
+   * or for legacy contact-form message content. */
+  notes?: string;
   /** ISO timestamp of a booked appointment, if this lead is from the booking flow. */
   appointmentISO?: string;
 }
@@ -131,22 +136,21 @@ export async function appendLead(input: AppendLeadInput): Promise<{ timestamp: s
   const token = await getAccessToken();
   const timestamp = formatTimestamp(new Date());
   const row = [
-    timestamp,
-    input.name,
-    input.email,
-    input.mobile,
-    input.message,
-    'New',
-    '',
-    timestamp,
-    formatAppointment(input.appointmentISO), // I = Appointment
+    timestamp,                                  // A = Timestamp
+    input.name,                                 // B = Name
+    input.email,                                // C = Email
+    input.mobile,                               // D = Mobile
+    input.industry ?? '',                       // E = Industry
+    input.notes ?? '',                          // F = Notes
+    'New',                                      // G = Status
+    formatAppointment(input.appointmentISO),    // H = Appointment
   ];
 
   // valueInputOption=RAW so values like "+1 305 555 0100" aren't parsed as
   // formulas by Sheets. Side effect: ISO timestamps stay as text, not Date cells.
   const res = await fetch(
     sheetUrl(
-      `/values/${encodeRange(`${SHEET_NAME}!A:I`)}:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`
+      `/values/${encodeRange(`${SHEET_NAME}!A:H`)}:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`
     ),
     {
       method: 'POST',
@@ -167,7 +171,7 @@ export async function appendLead(input: AppendLeadInput): Promise<{ timestamp: s
 export async function getLeads(): Promise<LeadRow[]> {
   const token = await getAccessToken();
   const res = await fetch(
-    sheetUrl(`/values/${encodeRange(`${SHEET_NAME}!A2:I`)}?majorDimension=ROWS`),
+    sheetUrl(`/values/${encodeRange(`${SHEET_NAME}!A2:H`)}?majorDimension=ROWS`),
     { headers: { Authorization: `Bearer ${token}` } }
   );
   if (!res.ok) {
@@ -182,18 +186,17 @@ export async function getLeads(): Promise<LeadRow[]> {
     name: r[1] ?? '',
     email: r[2] ?? '',
     mobile: r[3] ?? '',
-    message: r[4] ?? '',
-    status: r[5] ?? 'New',
-    notes: r[6] ?? '',
-    lastUpdated: r[7] ?? '',
-    appointment: r[8] ?? '',
+    industry: r[4] ?? '',
+    notes: r[5] ?? '',
+    status: r[6] ?? 'New',
+    appointment: r[7] ?? '',
   }));
 }
 
 export async function updateLead(
   rowNumber: number,
   updates: { status?: string; notes?: string }
-): Promise<{ lastUpdated: string }> {
+): Promise<{ ok: true }> {
   if (!Number.isInteger(rowNumber) || rowNumber < 2) {
     throw new Error('Invalid row number');
   }
@@ -203,7 +206,7 @@ export async function updateLead(
 
   // Read current row so we can write back fields we're not changing.
   const token = await getAccessToken();
-  const range = `${SHEET_NAME}!A${rowNumber}:I${rowNumber}`;
+  const range = `${SHEET_NAME}!A${rowNumber}:H${rowNumber}`;
   const readRes = await fetch(
     sheetUrl(`/values/${encodeRange(range)}`),
     { headers: { Authorization: `Bearer ${token}` } }
@@ -215,17 +218,16 @@ export async function updateLead(
   const current = readJson.values?.[0] ?? [];
   if (current.length === 0) throw new Error(`Row ${rowNumber} not found`);
 
-  const lastUpdated = formatTimestamp(new Date());
+  // A=Timestamp B=Name C=Email D=Mobile E=Industry F=Notes G=Status H=Appointment
   const updated = [
-    current[0] ?? '',
-    current[1] ?? '',
-    current[2] ?? '',
-    current[3] ?? '',
-    current[4] ?? '',
-    updates.status ?? current[5] ?? 'New',
-    updates.notes ?? current[6] ?? '',
-    lastUpdated,
-    current[8] ?? '', // I = Appointment — preserved as-is
+    current[0] ?? '',                              // A Timestamp (preserved)
+    current[1] ?? '',                              // B Name (preserved)
+    current[2] ?? '',                              // C Email (preserved)
+    current[3] ?? '',                              // D Mobile (preserved)
+    current[4] ?? '',                              // E Industry (preserved)
+    updates.notes ?? current[5] ?? '',             // F Notes (editable)
+    updates.status ?? current[6] ?? 'New',         // G Status (editable)
+    current[7] ?? '',                              // H Appointment (preserved)
   ];
 
   const writeRes = await fetch(
@@ -240,5 +242,5 @@ export async function updateLead(
     const text = await writeRes.text().catch(() => '');
     throw new Error(`Sheets update failed: ${writeRes.status} ${text}`);
   }
-  return { lastUpdated };
+  return { ok: true };
 }

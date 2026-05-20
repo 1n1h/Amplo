@@ -7,13 +7,13 @@ interface Props {
 const { number, name, description } = Astro.props;
 ---
 
-<article class="service-card group relative bg-[var(--color-navy-elevated)] rounded-md p-7 md:p-9 transition-all duration-300 ease-out">
+<article class="service-card group relative rounded-lg p-7 md:p-9 transition-all duration-300 ease-out">
   <span
     aria-hidden="true"
-    class="card-accent absolute left-6 md:left-8 top-0 h-1 w-10 bg-[var(--color-gold)] transition-all duration-300 ease-out"
+    class="card-accent absolute left-6 md:left-8 top-0 h-1 w-10 bg-[var(--color-gold)] transition-all duration-300 ease-out z-10"
   ></span>
 
-  <div class="flex items-start justify-between">
+  <div class="relative flex items-start justify-between">
     <span class="font-[var(--font-display)] text-4xl md:text-5xl font-medium text-[var(--color-gold)] leading-none">
       {number}
     </span>
@@ -22,23 +22,59 @@ const { number, name, description } = Astro.props;
     </span>
   </div>
 
-  <h3 class="mt-6 text-2xl md:text-[1.625rem]">{name}</h3>
+  <h3 class="relative mt-6 text-2xl md:text-[1.625rem]">{name}</h3>
 
-  <span aria-hidden="true" class="mt-4 block h-px w-10 bg-[var(--color-gold)]/40"></span>
+  <span aria-hidden="true" class="relative mt-4 block h-px w-10 bg-[var(--color-gold)]/40"></span>
 
-  <p class="mt-5 text-sm md:text-base text-[var(--color-text-muted)] leading-relaxed">
+  <p class="relative mt-5 text-sm md:text-base text-[var(--color-text-muted)] leading-relaxed">
     {description}
   </p>
 </article>
 
 <style>
   .service-card {
-    box-shadow: 0 0 0 1px color-mix(in oklab, var(--color-cream) 6%, transparent);
+    background: color-mix(in oklab, var(--color-navy-elevated) 60%, transparent);
+    backdrop-filter: blur(12px) saturate(1.2);
+    -webkit-backdrop-filter: blur(12px) saturate(1.2);
+    box-shadow:
+      inset 0 1px 0 color-mix(in oklab, var(--color-cream) 7%, transparent),
+      0 20px 40px -24px rgba(0, 0, 0, 0.5);
+    isolation: isolate;
+  }
+  .service-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      135deg,
+      color-mix(in oklab, var(--color-gold) 55%, transparent) 0%,
+      transparent 35%,
+      color-mix(in oklab, var(--color-periwinkle) 22%, transparent) 75%,
+      color-mix(in oklab, var(--color-gold) 35%, transparent) 100%
+    );
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    pointer-events: none;
+    transition: opacity 300ms ease;
+    z-index: 0;
   }
   .service-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 0 0 1px color-mix(in oklab, var(--color-gold) 35%, transparent),
-      0 20px 40px -20px color-mix(in oklab, #000 70%, transparent);
+    transform: translateY(-4px);
+    box-shadow:
+      inset 0 1px 0 color-mix(in oklab, var(--color-cream) 12%, transparent),
+      0 28px 56px -20px color-mix(in oklab, var(--color-gold) 22%, rgba(0, 0, 0, 0.55));
+  }
+  .service-card:hover::before {
+    background: linear-gradient(
+      135deg,
+      color-mix(in oklab, var(--color-gold) 80%, transparent) 0%,
+      transparent 30%,
+      color-mix(in oklab, var(--color-periwinkle) 35%, transparent) 70%,
+      color-mix(in oklab, var(--color-gold) 60%, transparent) 100%
+    );
   }
   .service-card:hover .card-accent {
     width: 4rem;

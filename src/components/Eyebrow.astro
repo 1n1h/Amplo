@@ -3,10 +3,21 @@ interface Props {
   label: string;
   variant?: 'left' | 'flanked';
   align?: 'left' | 'center';
+  /** Color treatment. Default is brand gold; 'navy' is used on cream sections. */
+  tone?: 'gold' | 'navy';
   class?: string;
 }
 
-const { label, variant = 'left', align = 'left', class: className = '' } = Astro.props;
+const {
+  label,
+  variant = 'left',
+  align = 'left',
+  tone = 'gold',
+  class: className = '',
+} = Astro.props;
+
+const lineColor = tone === 'navy' ? 'bg-[var(--color-navy)]' : 'bg-[var(--color-gold)]';
+const textColor = tone === 'navy' ? 'text-[var(--color-navy)]' : 'text-[var(--color-gold)]';
 ---
 
 <div
@@ -16,9 +27,9 @@ const { label, variant = 'left', align = 'left', class: className = '' } = Astro
     className,
   ]}
 >
-  <span class="eyebrow-line" aria-hidden="true"></span>
-  <span class="text-[0.75rem] font-semibold uppercase tracking-[0.15em] text-[var(--color-gold)]">
+  <span class:list={['inline-block w-10 h-px', lineColor]} aria-hidden="true"></span>
+  <span class:list={['text-[0.75rem] font-semibold uppercase tracking-[0.15em]', textColor]}>
     {label}
   </span>
-  {variant === 'flanked' && <span class="eyebrow-line" aria-hidden="true"></span>}
+  {variant === 'flanked' && <span class:list={['inline-block w-10 h-px', lineColor]} aria-hidden="true"></span>}
 </div>

@@ -1,49 +1,323 @@
 ---
 import Eyebrow from './Eyebrow.astro';
 
+const pains = [
+  {
+    text: 'Most teams hit a wall when the paperwork stacks up.',
+    art: 'papers',
+  },
+  {
+    text: 'Contracts that need review. Privacy questions before launch.',
+    art: 'contracts',
+  },
+  {
+    text: 'Compliance issues the moment they raise capital.',
+    art: 'raise',
+  },
+];
+
 const bullets = [
-  'Tailored engagements with transparent scope',
-  'Fractional general counsel for any growth stage',
-  'Specialists in tech, fintech, and data-intensive sectors',
+  'Scoped engagements. Fixed pricing. No surprise invoices.',
+  'Fractional general counsel. Pre-seed through Series C and beyond.',
+  'Deep experience across fintech, SaaS, and data-intensive platforms.',
 ];
 ---
 
-<section id="about" class="py-24 md:py-40">
-  <div class="container-site max-w-4xl">
+<section id="about" class="on-cream relative overflow-hidden py-28 md:py-44">
+  <!-- Layered editorial background -->
+  <div aria-hidden="true" class="about-bg">
+    <span class="about-watermark">Amplo<em>.</em></span>
+    <div class="about-grain"></div>
+    <span class="about-rule about-rule-left"></span>
+    <span class="about-rule about-rule-right"></span>
+  </div>
+
+  <div class="relative container-site max-w-7xl">
     <div class="text-center">
       <div class="fade-up">
-        <Eyebrow label="About Amplo" variant="flanked" align="center" />
+        <Eyebrow label="About Amplo" variant="flanked" align="center" tone="navy" />
       </div>
 
       <h2
-        class="fade-up mt-8 text-[clamp(2rem,5vw,3.5rem)] leading-[1.08]"
+        class="fade-up section-heading mt-10"
         style="transition-delay: 60ms;"
       >
-        We grow <em>together</em> — that's our promise.
+        Built for builders. <em>Priced for startups.</em>
       </h2>
-
-      <p
-        class="fade-up mx-auto mt-8 max-w-2xl text-base md:text-lg text-[var(--color-text-muted)]"
-        style="transition-delay: 120ms;"
-      >
-        As catalysts of innovation, we stand shoulder-to-shoulder with startups
-        and tech companies, turning aspirations into achievements and pioneering
-        the future, together.
-      </p>
     </div>
 
-    <ul class="fade-up mx-auto mt-12 max-w-2xl divide-y divide-[var(--color-gold)]/25" style="transition-delay: 180ms;">
+    <!-- 3 pain-point cards, iPhone-shaped portrait -->
+    <div class="fade-up mt-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8" style="transition-delay: 140ms;">
+      {
+        pains.map((p, i) => (
+          <article class={`pain-card pain-card-${i + 1}`} data-art={p.art}>
+            <div class="pain-image" aria-hidden="true">
+              {p.art === 'papers' && (
+                <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="22" y="18" width="64" height="84" rx="3" transform="rotate(-6 54 60)" fill="currentColor" opacity="0.18" />
+                  <rect x="28" y="22" width="64" height="84" rx="3" transform="rotate(-2 60 64)" fill="currentColor" opacity="0.32" />
+                  <rect x="36" y="20" width="64" height="84" rx="3" fill="currentColor" opacity="0.55" />
+                  <line x1="46" y1="40" x2="90" y2="40" stroke="var(--color-cream)" stroke-width="2" opacity="0.6" />
+                  <line x1="46" y1="52" x2="86" y2="52" stroke="var(--color-cream)" stroke-width="2" opacity="0.4" />
+                  <line x1="46" y1="64" x2="90" y2="64" stroke="var(--color-cream)" stroke-width="2" opacity="0.4" />
+                  <line x1="46" y1="76" x2="78" y2="76" stroke="var(--color-cream)" stroke-width="2" opacity="0.3" />
+                </svg>
+              )}
+              {p.art === 'contracts' && (
+                <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="24" y="20" width="64" height="80" rx="3" fill="currentColor" opacity="0.55" />
+                  <line x1="34" y1="36" x2="78" y2="36" stroke="var(--color-cream)" stroke-width="2" opacity="0.55" />
+                  <line x1="34" y1="48" x2="70" y2="48" stroke="var(--color-cream)" stroke-width="2" opacity="0.35" />
+                  <line x1="34" y1="60" x2="78" y2="60" stroke="var(--color-cream)" stroke-width="2" opacity="0.35" />
+                  <line x1="34" y1="72" x2="64" y2="72" stroke="var(--color-cream)" stroke-width="2" opacity="0.25" />
+                  <circle cx="82" cy="82" r="18" fill="none" stroke="var(--color-gold)" stroke-width="3" />
+                  <line x1="95" y1="95" x2="106" y2="106" stroke="var(--color-gold)" stroke-width="3" stroke-linecap="round" />
+                </svg>
+              )}
+              {p.art === 'raise' && (
+                <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="20" y="76" width="20" height="28" rx="2" fill="currentColor" opacity="0.4" />
+                  <rect x="50" y="56" width="20" height="48" rx="2" fill="currentColor" opacity="0.55" />
+                  <rect x="80" y="32" width="20" height="72" rx="2" fill="currentColor" opacity="0.75" />
+                  <path d="M22 60 L52 44 L82 30" stroke="var(--color-gold)" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                  <circle cx="22" cy="60" r="3.5" fill="var(--color-gold)" />
+                  <circle cx="52" cy="44" r="3.5" fill="var(--color-gold)" />
+                  <circle cx="82" cy="30" r="3.5" fill="var(--color-gold)" />
+                </svg>
+              )}
+            </div>
+            <p class="pain-text">{p.text}</p>
+          </article>
+        ))
+      }
+    </div>
+
+    <!-- Solution line -->
+    <p class="fade-up solution-line mt-16 text-center" style="transition-delay: 220ms;">
+      We take that all <em>off your plate.</em>
+    </p>
+
+    <ul class="fade-up mx-auto mt-12 max-w-2xl divide-y divide-[var(--color-gold)]/30" style="transition-delay: 280ms;">
       {
         bullets.map((item) => (
-          <li class="flex items-center gap-4 py-5">
+          <li class="flex items-center gap-4 py-6">
             <span
               aria-hidden="true"
               class="inline-block h-2.5 w-2.5 rotate-45 bg-[var(--color-gold)] shrink-0"
             />
-            <span class="text-base md:text-lg text-[var(--color-cream)]">{item}</span>
+            <span class="text-base md:text-lg cream-headline">{item}</span>
           </li>
         ))
       }
     </ul>
   </div>
 </section>
+
+<style>
+  /* Cream interlude — flips the section foreground/background to break up
+     the navy rhythm without losing the gold accent language. */
+  .on-cream {
+    background: var(--color-cream);
+    color: var(--color-navy);
+  }
+  .on-cream h2 {
+    color: var(--color-navy);
+  }
+  .on-cream h2 em {
+    color: var(--color-gold);
+    font-style: italic;
+    font-weight: 600;
+  }
+  .cream-headline {
+    color: var(--color-navy);
+  }
+  .cream-body {
+    color: color-mix(in oklab, var(--color-navy) 70%, transparent);
+  }
+
+  /* --- Pain-point cards (iPhone-shape portrait, navy bg, gold gradient border) --- */
+  .pain-card {
+    position: relative;
+    aspect-ratio: 5 / 8;
+    border-radius: 1.25rem;
+    background: var(--color-navy-elevated);
+    overflow: hidden;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    box-shadow:
+      inset 0 1px 0 color-mix(in oklab, var(--color-cream) 10%, transparent),
+      0 24px 48px -20px rgba(11, 25, 54, 0.35);
+    transition: transform 300ms ease, box-shadow 300ms ease;
+  }
+  .pain-card:hover {
+    transform: translateY(-4px);
+    box-shadow:
+      inset 0 1px 0 color-mix(in oklab, var(--color-cream) 14%, transparent),
+      0 32px 60px -20px color-mix(in oklab, var(--color-gold) 22%, rgba(11, 25, 54, 0.45));
+  }
+  /* Gold gradient border — same treatment as ServiceCards */
+  .pain-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: linear-gradient(
+      135deg,
+      color-mix(in oklab, var(--color-gold) 60%, transparent) 0%,
+      transparent 35%,
+      color-mix(in oklab, var(--color-periwinkle) 26%, transparent) 75%,
+      color-mix(in oklab, var(--color-gold) 45%, transparent) 100%
+    );
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .pain-card > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Pseudo image area — top ~60% of the card */
+  .pain-image {
+    flex: 1.4;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    color: var(--color-gold);
+  }
+  /* Per-card gradient backdrop for the image area */
+  .pain-card-1 .pain-image {
+    background: radial-gradient(
+      ellipse at 50% 30%,
+      color-mix(in oklab, var(--color-gold) 22%, transparent) 0%,
+      transparent 65%
+    );
+  }
+  .pain-card-2 .pain-image {
+    background: radial-gradient(
+      ellipse at 50% 30%,
+      color-mix(in oklab, var(--color-periwinkle) 22%, transparent) 0%,
+      transparent 65%
+    );
+  }
+  .pain-card-3 .pain-image {
+    background: radial-gradient(
+      ellipse at 50% 30%,
+      color-mix(in oklab, var(--color-gold) 28%, transparent) 0%,
+      transparent 65%
+    );
+  }
+  .pain-image svg {
+    width: 60%;
+    height: auto;
+    max-height: 70%;
+  }
+
+  /* Faint dotted grid overlay on the image area for editorial texture */
+  .pain-image::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(circle, color-mix(in oklab, var(--color-cream) 10%, transparent) 1px, transparent 1.5px);
+    background-size: 14px 14px;
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  /* Text below the image */
+  .pain-text {
+    flex: 1;
+    margin: 0;
+    padding: 1.5rem 1.5rem 2rem;
+    text-align: center;
+    color: var(--color-cream);
+    font-family: var(--font-display);
+    font-size: clamp(1.05rem, 1.2vw, 1.25rem);
+    line-height: 1.35;
+    letter-spacing: -0.005em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* --- Solution line (the conclusion) --- */
+  .solution-line {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 3.6vw, 2.75rem);
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: var(--color-navy);
+    line-height: 1.15;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 64rem;
+  }
+  .solution-line em {
+    color: var(--color-gold);
+    font-style: italic;
+    font-weight: 600;
+  }
+
+  /* --- Editorial background treatment (unchanged) --- */
+  .about-bg {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+  }
+  .about-watermark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scaleY(0.7);
+    transform-origin: center;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 500;
+    font-size: clamp(12rem, 26vw, 22rem);
+    line-height: 0.85;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    color: color-mix(in oklab, var(--color-gold) 9%, transparent);
+    user-select: none;
+  }
+  .about-watermark em {
+    color: color-mix(in oklab, var(--color-gold) 14%, transparent);
+    font-style: italic;
+  }
+  .about-grain {
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.05 0 0 0 0 0.1 0 0 0 0 0.21 0 0 0 0.5 0'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.55'/></svg>");
+    opacity: 0.18;
+    mix-blend-mode: multiply;
+  }
+  .about-rule {
+    position: absolute;
+    top: 4rem;
+    bottom: 4rem;
+    width: 1px;
+    background: linear-gradient(
+      to bottom,
+      transparent 0%,
+      color-mix(in oklab, var(--color-gold) 45%, transparent) 25%,
+      color-mix(in oklab, var(--color-gold) 45%, transparent) 75%,
+      transparent 100%
+    );
+  }
+  .about-rule-left {
+    left: clamp(1rem, 6vw, 5rem);
+  }
+  .about-rule-right {
+    right: clamp(1rem, 6vw, 5rem);
+  }
+</style>

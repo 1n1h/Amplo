@@ -1,32 +1,32 @@
 [
   {
     "number": "01",
-    "name": "Compliance Assessments",
-    "description": "Thorough assessments to ensure your business meets data protection, privacy, and industry-specific compliance requirements."
+    "name": "Stay Compliant",
+    "description": "We check your business against the rules you're supposed to follow, so regulators don't blindside you mid-launch."
   },
   {
     "number": "02",
-    "name": "Governance Advisory",
-    "description": "Establishing effective governance frameworks, policies, and procedures aligned to your legal and regulatory obligations."
+    "name": "Run It Like a Real Company",
+    "description": "Board structure, policies, decision frameworks. The stuff investors ask about during diligence, handled before they ask."
   },
   {
     "number": "03",
-    "name": "Risk Management",
-    "description": "Proactive identification and mitigation of operational, legal, and strategic risk across your organization."
+    "name": "Stop Risks Before They Hit",
+    "description": "We spot what could break your business: contracts, operations, legal exposure. Then tell you what to fix first."
   },
   {
     "number": "04",
-    "name": "Regulatory Compliance",
-    "description": "Guidance and hands-on support for navigating complex, industry-specific regulatory environments."
+    "name": "Navigate the Rules",
+    "description": "Every industry has its own playbook. We translate the regulations into the moves you actually need to make."
   },
   {
     "number": "05",
-    "name": "Data Protection",
-    "description": "Privacy-by-design audits and frameworks for data-intensive technology platforms (GDPR, CCPA, and more)."
+    "name": "Protect User Data",
+    "description": "GDPR, CCPA, and whatever's next. We build privacy into your product before it becomes a lawsuit or a launch blocker."
   },
   {
     "number": "06",
-    "name": "Legal Contracts & IP",
-    "description": "Reviewing, drafting, and negotiating contracts, plus trademarks, copyrights, and patent protection strategies."
+    "name": "Lock Down Your IP",
+    "description": "Trademarks, contracts, patents. The paperwork that turns your hard work into something you actually own."
   }
 ]

@@ -1,88 +1,99 @@
 ---
-// Booking flow: pick a date, pick a 30-min slot, fill the form, submit.
-// All availability + slot math happens server-side via /api/availability and /api/book.
+// Unified booking flow: visitor fills name/email/mobile/industry, picks a
+// date and time on the calendar, hits Confirm. All in one form, no toggles
+// or modals. Availability + slot math happens server-side via /api/availability
+// and /api/book.
 ---
 
 <div class="mt-12" id="booking-root">
-  <!-- Step 1 + 2: date picker + slot list -->
-  <div id="booking-picker" class="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8 lg:gap-12">
-    <!-- Calendar -->
-    <div>
-      <div class="flex items-center justify-between mb-5">
-        <button type="button" id="cal-prev" class="cal-nav" aria-label="Previous month">‹</button>
-        <span id="cal-month-label" class="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--color-cream)]"></span>
-        <button type="button" id="cal-next" class="cal-nav" aria-label="Next month">›</button>
+  <form id="booking-form" novalidate>
+    <!-- Step 1: contact details -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
+      <div class="field">
+        <label for="b-name" class="field-label">Name</label>
+        <input id="b-name" name="name" type="text" autocomplete="name" required placeholder="Your name" class="field-input" />
       </div>
-
-      <div class="grid grid-cols-7 gap-1 text-[0.65rem] uppercase tracking-[0.15em] text-[var(--color-text-muted)] mb-2">
-        <div class="text-center py-1">Sun</div>
-        <div class="text-center py-1">Mon</div>
-        <div class="text-center py-1">Tue</div>
-        <div class="text-center py-1">Wed</div>
-        <div class="text-center py-1">Thu</div>
-        <div class="text-center py-1">Fri</div>
-        <div class="text-center py-1">Sat</div>
+      <div class="field">
+        <label for="b-email" class="field-label">Email</label>
+        <input id="b-email" name="email" type="email" autocomplete="email" required placeholder="you@company.com" class="field-input" />
       </div>
+      <div class="field">
+        <label for="b-mobile" class="field-label">Mobile</label>
+        <input id="b-mobile" name="mobile" type="tel" autocomplete="tel" required placeholder="+1 (555) 555-5555" class="field-input" />
+      </div>
+      <div class="field">
+        <label for="b-industry" class="field-label">Industry</label>
+        <select id="b-industry" name="industry" required class="field-input">
+          <option value="" disabled selected>Select your industry</option>
+          <option value="SaaS / Software">SaaS / Software</option>
+          <option value="Fintech">Fintech</option>
+          <option value="E-commerce / D2C">E-commerce / D2C</option>
+          <option value="Influencer / Creator">Influencer / Creator</option>
+          <option value="Marketing / Advertising">Marketing / Advertising</option>
+          <option value="Sales / Revenue Ops">Sales / Revenue Ops</option>
+          <option value="Healthcare / Healthtech">Healthcare / Healthtech</option>
+          <option value="AI / ML">AI / ML</option>
+          <option value="Edtech">Edtech</option>
+          <option value="Real Estate / Proptech">Real Estate / Proptech</option>
+          <option value="Crypto / Web3">Crypto / Web3</option>
+          <option value="Media / Publishing">Media / Publishing</option>
+          <option value="Venture Capital / Investing">Venture Capital / Investing</option>
+          <option value="Other">Other (specify below)</option>
+        </select>
+      </div>
+      <div class="field md:col-span-2 hidden" id="b-industry-other-field">
+        <label for="b-industry-other" class="field-label">Tell us more</label>
+        <input id="b-industry-other" name="industryOther" type="text" maxlength="100" placeholder="Your industry, role, or what you'd like to discuss" class="field-input" />
+      </div>
+    </div>
 
-      <div id="cal-grid" class="grid grid-cols-7 gap-1"></div>
-
-      <p class="mt-4 text-xs text-[var(--color-text-muted)]">
-        Monday through Friday, 9:00&nbsp;AM – 6:00&nbsp;PM Eastern. 30-minute slots.
+    <!-- Step 2: pick a date + time -->
+    <div class="mt-10 pt-10 border-t border-[var(--color-gold)]/20">
+      <p class="text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-[var(--color-gold)] mb-6">
+        Pick a date and time
       </p>
-    </div>
+      <div class="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8 lg:gap-12">
+        <div>
+          <div class="flex items-center justify-between mb-5">
+            <button type="button" id="cal-prev" class="cal-nav" aria-label="Previous month">‹</button>
+            <span id="cal-month-label" class="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--color-cream)]"></span>
+            <button type="button" id="cal-next" class="cal-nav" aria-label="Next month">›</button>
+          </div>
 
-    <!-- Slot list -->
-    <div>
-      <div class="flex items-center justify-between mb-5">
-        <span id="slots-title" class="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--color-cream)]">
-          Select a date
-        </span>
-      </div>
-      <div
-        id="slots-list"
-        class="grid grid-cols-2 gap-2 max-h-[420px] overflow-y-auto pr-1"
-        aria-live="polite"
-      >
-        <p class="col-span-2 text-sm text-[var(--color-text-muted)] py-6">
-          Pick a date from the calendar to see open times.
-        </p>
-      </div>
-    </div>
-  </div>
+          <div class="grid grid-cols-7 gap-1 text-[0.65rem] uppercase tracking-[0.15em] text-[var(--color-text-muted)] mb-2">
+            <div class="text-center py-1">Sun</div>
+            <div class="text-center py-1">Mon</div>
+            <div class="text-center py-1">Tue</div>
+            <div class="text-center py-1">Wed</div>
+            <div class="text-center py-1">Thu</div>
+            <div class="text-center py-1">Fri</div>
+            <div class="text-center py-1">Sat</div>
+          </div>
 
-  <!-- Step 3: booking form (shown after a slot is selected) -->
-  <form
-    id="booking-form"
-    class="hidden mt-10 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-7"
-    novalidate
-  >
-    <div class="md:col-span-2 flex items-center justify-between rounded-md border border-[var(--color-gold)]/40 bg-[var(--color-navy-elevated)] p-5">
-      <div>
-        <p class="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-[var(--color-gold)] mb-1">
-          Selected time
-        </p>
-        <p id="selected-slot-label" class="text-base text-[var(--color-cream)]">—</p>
-      </div>
-      <button type="button" id="change-slot" class="text-xs uppercase tracking-[0.18em] text-[var(--color-text-muted)] hover:text-[var(--color-gold)] underline underline-offset-4 decoration-[var(--color-gold)]/40">
-        Change
-      </button>
-    </div>
+          <div id="cal-grid" class="grid grid-cols-7 gap-1"></div>
 
-    <div class="field">
-      <label for="b-name" class="field-label">Name</label>
-      <input id="b-name" name="name" type="text" autocomplete="name" required placeholder="Your name" class="field-input" />
-    </div>
-    <div class="field">
-      <label for="b-email" class="field-label">Email</label>
-      <input id="b-email" name="email" type="email" autocomplete="email" required placeholder="you@company.com" class="field-input" />
-    </div>
-    <div class="field md:col-span-2">
-      <label for="b-mobile" class="field-label">Mobile</label>
-      <input id="b-mobile" name="mobile" type="tel" autocomplete="tel" placeholder="+1 (555) 555-5555" class="field-input" />
-    </div>
-    <div class="field md:col-span-2">
-      <label for="b-message" class="field-label">Message</label>
-      <textarea id="b-message" name="message" rows="5" required placeholder="Tell us about your project..." class="field-input resize-y"></textarea>
+          <p class="mt-4 text-xs text-[var(--color-text-muted)]">
+            Monday through Friday, 9:00&nbsp;AM to 6:00&nbsp;PM Eastern. 30-minute slots.
+          </p>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-5">
+            <span id="slots-title" class="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--color-cream)]">
+              Select a date
+            </span>
+          </div>
+          <div
+            id="slots-list"
+            class="grid grid-cols-2 gap-2 max-h-[420px] overflow-y-auto pr-1"
+            aria-live="polite"
+          >
+            <p class="col-span-2 text-sm text-[var(--color-text-muted)] py-6">
+              Pick a date from the calendar to see open times.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Honeypot -->
@@ -94,12 +105,19 @@
 
     <input type="hidden" id="b-startISO" name="startISO" value="" />
 
-    <div class="md:col-span-2 flex flex-col sm:flex-row sm:items-center sm:gap-6 mt-2">
-      <button type="submit" class="btn-primary self-start" id="booking-submit">
+    <!-- Step 3: confirm -->
+    <div class="mt-10 pt-8 border-t border-[var(--color-gold)]/20 flex flex-col sm:flex-row sm:items-center gap-6">
+      <div class="flex-1">
+        <p class="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-[var(--color-text-muted)] mb-1">
+          Selected time
+        </p>
+        <p id="selected-slot-label" class="text-base text-[var(--color-cream)]">Nothing selected yet</p>
+      </div>
+      <button type="submit" class="btn-primary" id="booking-submit">
         Confirm Booking
       </button>
-      <p id="booking-status" class="text-sm text-[var(--color-text-muted)]" role="status" aria-live="polite"></p>
     </div>
+    <p id="booking-status" class="mt-4 text-sm text-[var(--color-text-muted)]" role="status" aria-live="polite"></p>
   </form>
 
   <!-- Success state -->
@@ -195,6 +213,16 @@
     cursor: not-allowed;
     text-decoration: line-through;
   }
+  .slot-btn.is-picked {
+    background: var(--color-gold);
+    border-color: var(--color-gold);
+    color: var(--color-navy);
+    font-weight: 600;
+  }
+  .slot-btn.is-picked:hover {
+    background: var(--color-gold-hover);
+    color: var(--color-navy);
+  }
 
   /* Reuse the contact form's field styling */
   .field { display: flex; flex-direction: column; gap: 0.625rem; }
@@ -242,7 +270,6 @@
   const slotsTitle = document.getElementById('slots-title') as HTMLSpanElement;
 
   const form = document.getElementById('booking-form') as HTMLFormElement;
-  const picker = document.getElementById('booking-picker') as HTMLDivElement;
   const selectedSlotLabel = document.getElementById('selected-slot-label') as HTMLParagraphElement;
   const startISOInput = document.getElementById('b-startISO') as HTMLInputElement;
   const submitBtn = document.getElementById('booking-submit') as HTMLButtonElement;
@@ -250,7 +277,17 @@
   const successEl = document.getElementById('booking-success') as HTMLDivElement;
   const successEmail = document.getElementById('success-email') as HTMLSpanElement;
   const successWhen = document.getElementById('success-when') as HTMLSpanElement;
-  const changeSlotBtn = document.getElementById('change-slot') as HTMLButtonElement;
+  const industrySelect = document.getElementById('b-industry') as HTMLSelectElement;
+  const industryOtherField = document.getElementById('b-industry-other-field') as HTMLDivElement;
+  const industryOtherInput = document.getElementById('b-industry-other') as HTMLInputElement;
+
+  // Show the "tell us more" text input only when the visitor picks "Other".
+  industrySelect?.addEventListener('change', () => {
+    const isOther = industrySelect.value === 'Other';
+    industryOtherField.classList.toggle('hidden', !isOther);
+    industryOtherInput.required = isOther;
+    if (!isOther) industryOtherInput.value = '';
+  });
 
   // "Today" in NY for clamp logic.
   function todayInNy(): { y: number; m: number; d: number } {
@@ -415,6 +452,11 @@
       btn.className = 'slot-btn';
       btn.textContent = s.label;
       btn.disabled = !s.available;
+      btn.dataset.iso = s.startISO;
+      // Restore picked-state if user navigated back to the same date.
+      if (s.startISO === startISOInput.value) {
+        btn.classList.add('is-picked');
+      }
       btn.addEventListener('click', () => {
         if (btn.disabled) return;
         chooseSlot(s);
@@ -426,18 +468,11 @@
   function chooseSlot(slot: SlotRow) {
     startISOInput.value = slot.startISO;
     selectedSlotLabel.textContent = fmtFullSlotLabel(slot.startISO);
-    picker.classList.add('hidden');
-    form.classList.remove('hidden');
-    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Visual mark on the chosen slot button so it stays highlighted.
+    slotsList.querySelectorAll('.slot-btn').forEach((b) => b.classList.remove('is-picked'));
+    const target = slotsList.querySelector(`[data-iso="${CSS.escape(slot.startISO)}"]`);
+    target?.classList.add('is-picked');
   }
-
-  changeSlotBtn.addEventListener('click', () => {
-    form.classList.add('hidden');
-    picker.classList.remove('hidden');
-    startISOInput.value = '';
-    statusEl.textContent = '';
-    picker.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  });
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -447,17 +482,34 @@
       form.reportValidity();
       return;
     }
+    if (!startISOInput.value) {
+      statusEl.textContent = 'Please pick a date and time before confirming.';
+      statusEl.style.color = 'var(--color-gold)';
+      return;
+    }
     submitBtn.disabled = true;
     const original = submitBtn.textContent;
     submitBtn.textContent = 'Booking…';
     statusEl.textContent = '';
 
-    const data = Object.fromEntries(new FormData(form).entries());
+    const data = Object.fromEntries(new FormData(form).entries()) as Record<string, string>;
+    // Industry "Other" gets the free-text spec moved into notes.
+    const industry = (data.industry || '').toString();
+    const other = (data.industryOther || '').toString().trim();
+    const payload = {
+      name: data.name,
+      email: data.email,
+      mobile: data.mobile,
+      industry: industry === 'Other' ? 'Other' : industry,
+      notes: industry === 'Other' ? other : '',
+      startISO: data.startISO,
+      company_website: data.company_website ?? '',
+    };
     try {
       const res = await fetch('/api/book', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
       });
       const json = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(json.error || `Booking failed (${res.status}).`);

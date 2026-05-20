@@ -1,0 +1,73 @@
+---
+// Industries + roles Amplo serves. Mirrors LogoMarquee styling (navy bg,
+// gold letters) but scrolls left and is purely text. Sits between Reviews
+// and Contact as a "this is who we work with" reinforcement.
+const items = [
+  'SaaS',
+  'B2B',
+  'D2C',
+  'Fintech',
+  'Influencers',
+  'Marketing',
+  'Sales Ops',
+  'Healthtech',
+  'AI / ML',
+  'Edtech',
+  'Web3',
+  'Founders',
+  'CEOs',
+  'COOs',
+  'VCs',
+  'General Counsel',
+  'Agency Owners',
+];
+
+const loop = [...items, ...items];
+---
+
+<section
+  aria-label="Industries and roles Amplo serves"
+  class="industry-marquee bg-[var(--color-navy)] overflow-hidden"
+>
+  <div class="ind-track-wrap py-5">
+    <ul class="ind-track flex items-center gap-12 whitespace-nowrap" aria-label="Who we work with">
+      {
+        loop.map((item, i) => (
+          <li class="flex items-center gap-12">
+            <span class="text-[0.75rem] font-semibold uppercase tracking-[0.2em] text-[var(--color-gold)]">
+              {item}
+            </span>
+            {i < loop.length - 1 && (
+              <span
+                class="inline-block h-px w-10 bg-[var(--color-gold)]/40"
+                aria-hidden="true"
+              />
+            )}
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .industry-marquee {
+    --duration: 50s;
+    position: relative;
+  }
+  .ind-track {
+    width: max-content;
+    animation: ind-scroll var(--duration) linear infinite;
+    will-change: transform;
+  }
+  .industry-marquee:hover .ind-track {
+    animation-play-state: paused;
+  }
+  @keyframes ind-scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ind-track { animation: none; }
+  }
+</style>

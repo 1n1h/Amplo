@@ -1,0 +1,245 @@
+/* TestimonialStack — fan-out card carousel for the Reviews section. */
+
+.ts-shell {
+  width: 100%;
+  font-family: var(--font-sans);
+}
+
+.ts-stage {
+  position: relative;
+  width: 100%;
+  outline: none;
+}
+
+/* soft bottom shadow under the stack for grounding */
+.ts-stage::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  bottom: 1.5rem;
+  margin-inline: auto;
+  height: 12rem;
+  width: 76%;
+  border-radius: 9999px;
+  background: color-mix(in oklab, var(--color-navy) 40%, transparent);
+  filter: blur(48px);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.ts-perspective {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+/* Individual draggable card frame (positioned absolutely so they overlap) */
+.ts-card {
+  position: absolute;
+  bottom: 1.5rem;
+  border-radius: 1rem;
+  overflow: hidden;
+  isolation: isolate;
+  will-change: transform;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.ts-card.is-active {
+  cursor: grab;
+}
+.ts-card.is-active:active {
+  cursor: grabbing;
+}
+.ts-card.is-stacked {
+  cursor: pointer;
+}
+.ts-card-inner {
+  height: 100%;
+  width: 100%;
+}
+
+/* --- Card content (navy + gold gradient border, matches site palette) --- */
+.tc {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  padding: 2rem 2rem 1.75rem;
+  background: var(--color-navy-elevated);
+  border-radius: inherit;
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--color-cream) 12%, transparent),
+    0 28px 56px -22px rgba(11, 25, 54, 0.55);
+  display: flex;
+  flex-direction: column;
+  isolation: isolate;
+}
+.tc::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--color-gold) 60%, transparent) 0%,
+    transparent 35%,
+    color-mix(in oklab, var(--color-periwinkle) 28%, transparent) 75%,
+    color-mix(in oklab, var(--color-gold) 45%, transparent) 100%
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+  z-index: 0;
+}
+.tc > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Gold accent strip at top-left, matching the old marquee card */
+.tc::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 2rem;
+  height: 0.25rem;
+  width: 2.5rem;
+  background: var(--color-gold);
+  z-index: 2;
+}
+
+/* Stars row */
+.tc-stars {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-bottom: 1.5rem;
+}
+.tc-star {
+  width: 1rem;
+  height: 1rem;
+  color: var(--color-gold);
+}
+
+/* Quote text — the editorial focus */
+.tc-quote {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  line-height: 1.45;
+  color: var(--color-cream);
+  margin: 0;
+  flex: 1;
+  letter-spacing: -0.005em;
+}
+.tc-quote::before {
+  content: '“';
+  margin-right: 0.2rem;
+  color: var(--color-gold);
+}
+.tc-quote::after {
+  content: '”';
+  margin-left: 0.1rem;
+  color: var(--color-gold);
+}
+
+/* Footer row with avatar + author */
+.tc-footer {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid color-mix(in oklab, var(--color-gold) 25%, transparent);
+}
+.tc-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.75rem;
+  width: 2.75rem;
+  flex-shrink: 0;
+  border-radius: 9999px;
+  background: var(--color-gold);
+  color: var(--color-navy);
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 0.875rem;
+  letter-spacing: 0.02em;
+}
+.tc-meta {
+  min-width: 0;
+}
+.tc-name {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-cream);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tc-role {
+  margin: 0;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: color-mix(in oklab, var(--color-gold) 80%, transparent);
+}
+.tc-company {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+/* --- Dot navigation under the stack --- */
+.ts-dots {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  max-width: 480px;
+  margin-inline: auto;
+}
+.ts-dot {
+  height: 0.5rem;
+  width: 0.5rem;
+  border: 0;
+  border-radius: 9999px;
+  background: color-mix(in oklab, var(--color-navy) 35%, transparent);
+  cursor: pointer;
+  transition: background 200ms ease, transform 200ms ease;
+  padding: 0;
+}
+.ts-dot:hover {
+  background: color-mix(in oklab, var(--color-navy) 60%, transparent);
+}
+.ts-dot.is-on {
+  background: var(--color-gold);
+  transform: scale(1.3);
+}
+
+/* --- Responsive — at narrow widths, the fanned cards stretch off-screen.
+   Tighten dimensions so the stack fits a phone. --- */
+@media (max-width: 640px) {
+  .ts-card {
+    width: 86vw !important;
+    height: 320px !important;
+  }
+  .tc {
+    padding: 1.5rem 1.5rem 1.25rem;
+  }
+  .tc-quote {
+    font-size: 1.05rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ts-dot {
+    transition: none;
+  }
+}

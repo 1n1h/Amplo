@@ -78,15 +78,14 @@ export const prerender = false;
               <th class="text-left px-4 py-3 font-semibold text-[0.65rem] uppercase tracking-[0.15em]">Name</th>
               <th class="text-left px-4 py-3 font-semibold text-[0.65rem] uppercase tracking-[0.15em]">Email</th>
               <th class="text-left px-4 py-3 font-semibold text-[0.65rem] uppercase tracking-[0.15em]">Mobile</th>
-              <th class="text-left px-4 py-3 font-semibold text-[0.65rem] uppercase tracking-[0.15em]">Appointment</th>
-              <th class="text-left px-4 py-3 font-semibold text-[0.65rem] uppercase tracking-[0.15em]">Message</th>
+              <th class="text-left px-4 py-3 font-semibold text-[0.65rem] uppercase tracking-[0.15em]">Industry</th>
+              <th class="text-left px-4 py-3 font-semibold text-[0.65rem] uppercase tracking-[0.15em]">More</th>
               <th class="text-left px-4 py-3 font-semibold text-[0.65rem] uppercase tracking-[0.15em]">Status</th>
-              <th class="text-left px-4 py-3 font-semibold text-[0.65rem] uppercase tracking-[0.15em]">Notes</th>
-              <th class="text-left px-4 py-3 font-semibold text-[0.65rem] uppercase tracking-[0.15em]">Updated</th>
+              <th class="text-left px-4 py-3 font-semibold text-[0.65rem] uppercase tracking-[0.15em]">Appointment</th>
             </tr>
           </thead>
           <tbody id="leads-tbody" class="divide-y divide-[var(--color-cream)]/8 text-[var(--color-cream)]">
-            <tr><td colspan="9" class="px-4 py-8 text-center text-[var(--color-text-muted)]">Loading leads…</td></tr>
+            <tr><td colspan="8" class="px-4 py-8 text-center text-[var(--color-text-muted)]">Loading leads…</td></tr>
           </tbody>
         </table>
       </div>
@@ -182,7 +181,7 @@ export const prerender = false;
       return leads.filter((l) => {
         if (status !== 'all' && l.status !== status) return false;
         if (q) {
-          const hay = `${l.name} ${l.email} ${l.message}`.toLowerCase();
+          const hay = `${l.name} ${l.email} ${l.industry} ${l.notes}`.toLowerCase();
           if (!hay.includes(q)) return false;
         }
         return true;
@@ -195,7 +194,7 @@ export const prerender = false;
       leadCount.textContent = `${filtered.length} of ${leads.length} lead${leads.length === 1 ? '' : 's'} · ${newCount} new`;
 
       if (filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="9" class="px-4 py-12 text-center text-[var(--color-text-muted)]">No leads match this filter.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" class="px-4 py-12 text-center text-[var(--color-text-muted)]">No leads match this filter.</td></tr>';
         return;
       }
 
@@ -205,23 +204,20 @@ export const prerender = false;
           <td class="px-4 py-3 font-medium">${escapeHtml(l.name)}</td>
           <td class="px-4 py-3"><a class="hover:text-[var(--color-gold)] underline decoration-transparent hover:decoration-[var(--color-gold)]/40 underline-offset-2 transition" href="mailto:${escapeHtml(l.email)}">${escapeHtml(l.email)}</a></td>
           <td class="px-4 py-3 text-[var(--color-text-muted)]">${l.mobile ? `<a class="hover:text-[var(--color-gold)]" href="tel:${escapeHtml(l.mobile)}">${escapeHtml(l.mobile)}</a>` : '—'}</td>
-          <td class="px-4 py-3 text-xs whitespace-nowrap ${l.appointment ? 'text-[var(--color-gold)]' : 'text-[var(--color-text-muted)]'}">${l.appointment ? escapeHtml(l.appointment) : '—'}</td>
-          <td class="px-4 py-3 text-[var(--color-text-muted)] max-w-md">
-            <button type="button" class="msg-toggle text-left hover:text-[var(--color-cream)] transition">${escapeHtml(truncate(l.message, 90))}</button>
+          <td class="px-4 py-3 text-xs whitespace-nowrap">${l.industry ? escapeHtml(l.industry) : '—'}</td>
+          <td class="px-4 py-3 min-w-[200px]">
+            <textarea
+              class="notes-input w-full rounded-sm border border-[var(--color-cream)]/10 bg-[var(--color-navy)]/70 px-2 py-1.5 text-xs text-[var(--color-cream)] focus:border-[var(--color-gold)] focus:outline-none resize-y"
+              rows="2"
+              placeholder="Add detail…"
+            >${escapeHtml(l.notes)}</textarea>
           </td>
           <td class="px-4 py-3">
             <select class="status-select rounded-sm border border-[var(--color-cream)]/15 bg-[var(--color-navy-elevated)] px-2 py-1.5 text-xs">
               ${statuses.map((s) => `<option value="${s}" ${s === l.status ? 'selected' : ''}>${s}</option>`).join('')}
             </select>
           </td>
-          <td class="px-4 py-3 min-w-[200px]">
-            <textarea
-              class="notes-input w-full rounded-sm border border-[var(--color-cream)]/10 bg-[var(--color-navy)]/70 px-2 py-1.5 text-xs text-[var(--color-cream)] focus:border-[var(--color-gold)] focus:outline-none resize-y"
-              rows="2"
-              placeholder="Add a note…"
-            >${escapeHtml(l.notes)}</textarea>
-          </td>
-          <td class="px-4 py-3 text-xs text-[var(--color-text-muted)] whitespace-nowrap">${escapeHtml(fmtTimestamp(l.lastUpdated))}</td>
+          <td class="px-4 py-3 text-xs whitespace-nowrap ${l.appointment ? 'text-[var(--color-gold)]' : 'text-[var(--color-text-muted)]'}">${l.appointment ? escapeHtml(l.appointment) : '—'}</td>
         </tr>
       `).join('');
     }
@@ -274,8 +270,7 @@ export const prerender = false;
       const original = lead.status;
       lead.status = target.value;
       try {
-        const result = await patchLead(rowNumber, { status: target.value });
-        if (result?.lastUpdated) lead.lastUpdated = result.lastUpdated;
+        await patchLead(rowNumber, { status: target.value });
         flashRow(tr);
         render(allLeads);
       } catch (err) {
@@ -297,15 +292,8 @@ export const prerender = false;
       const original = lead.notes;
       lead.notes = next;
       try {
-        const result = await patchLead(rowNumber, { notes: next });
-        if (result?.lastUpdated) lead.lastUpdated = result.lastUpdated;
+        await patchLead(rowNumber, { notes: next });
         flashRow(tr);
-        // Re-render only the timestamp cell to avoid losing focus elsewhere
-        const updatedCell = tr.querySelector('td:last-child');
-        if (updatedCell && result?.lastUpdated) {
-          updatedCell.textContent = fmtTimestamp(result.lastUpdated);
-        }
-        leadCount.textContent = leadCount.textContent;
       } catch (err) {
         lead.notes = original;
         target.value = original;

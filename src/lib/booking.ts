@@ -14,7 +14,8 @@ export interface BookingAttempt {
   name: string;
   email: string;
   mobile: string;
-  message: string;
+  industry: string;
+  notes: string;
   startISO: string;
 }
 
@@ -75,7 +76,8 @@ export async function performBooking(raw: Record<string, unknown>): Promise<Book
       name: lead.name,
       email: lead.email,
       mobile: lead.mobile,
-      message: lead.message,
+      industry: lead.industry,
+      notes: lead.notes,
     });
     eventId = event.id;
   } catch (err) {
@@ -95,7 +97,8 @@ export async function performBooking(raw: Record<string, unknown>): Promise<Book
       name: lead.name,
       email: lead.email,
       mobile: lead.mobile,
-      message: lead.message,
+      industry: lead.industry,
+      notes: lead.notes,
       startISO: lead.startISO,
       endISO,
       eventId,
@@ -105,13 +108,15 @@ export async function performBooking(raw: Record<string, unknown>): Promise<Book
     console.error('[booking] email send failed (event still created):', e.message);
   }
 
-  // Also log the booking to the Amplo Leads sheet (column I = Appointment).
+  // Log the booking to the Amplo Leads sheet. Schema:
+  // A=Timestamp B=Name C=Email D=Mobile E=Industry F=Notes G=Status H=Appointment
   try {
     await appendLead({
       name: lead.name,
       email: lead.email,
       mobile: lead.mobile,
-      message: lead.message,
+      industry: lead.industry,
+      notes: lead.notes,
       appointmentISO: lead.startISO,
     });
   } catch (err) {

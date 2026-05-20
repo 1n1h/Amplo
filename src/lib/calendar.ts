@@ -109,7 +109,8 @@ export interface CreateBookingEventInput {
   name: string;
   email: string;
   mobile: string;
-  message: string;
+  industry: string;
+  notes: string;
 }
 
 export interface CreatedBookingEvent {
@@ -123,17 +124,19 @@ export async function createBookingEvent(
   const token = await getAccessToken();
   const calendarId = requireEnv('GOOGLE_CALENDAR_ID');
 
-  const summary = `Amplo Consult — ${input.name}`;
-  const description = [
+  const summary = `Amplo Consult: ${input.name}`;
+  const descriptionLines = [
     `Booked from amploconsulting.com`,
     ``,
     `Name: ${input.name}`,
     `Email: ${input.email}`,
-    `Mobile: ${input.mobile || '—'}`,
-    ``,
-    `Message:`,
-    input.message || '—',
-  ].join('\n');
+    `Mobile: ${input.mobile || '(not provided)'}`,
+    `Industry: ${input.industry || '(not provided)'}`,
+  ];
+  if (input.notes && input.notes.trim()) {
+    descriptionLines.push('', 'Notes:', input.notes);
+  }
+  const description = descriptionLines.join('\n');
 
   // We deliberately do NOT add the visitor as an attendee here — personal
   // Google accounts (no Workspace + DWD) can't invite attendees via service

@@ -43,7 +43,14 @@
     -moz-osx-font-smoothing: grayscale;
   }
   h1,
-  h2,
+  h2 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    color: var(--color-cream);
+    line-height: 1.12;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+  }
   h3,
   h4 {
     font-family: var(--font-display);
@@ -53,7 +60,12 @@
     letter-spacing: -0.005em;
   }
   h1 em,
-  h2 em,
+  h2 em {
+    font-style: italic;
+    color: var(--color-periwinkle);
+    font-weight: 600;
+    letter-spacing: 0.005em;
+  }
   h3 em,
   h4 em {
     font-style: italic;
@@ -69,6 +81,12 @@
     outline-offset: 3px;
     border-radius: 2px;
   }
+}
+
+@utility section-heading {
+  font-size: clamp(2.5rem, 6vw, 4.75rem);
+  line-height: 1.1;
+  text-wrap: balance;
 }
 
 @utility container-site {

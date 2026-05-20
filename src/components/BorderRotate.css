@@ -1,0 +1,52 @@
+/* BorderRotate — supports the animated conic-gradient border component.
+   The spec's keyframes animate `--gradient-angle`; CSS variables aren't
+   animatable by default — we register the prop via @property so it works. */
+
+@property --gradient-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes gradient-rotate {
+  from {
+    --gradient-angle: 0deg;
+  }
+  to {
+    --gradient-angle: 360deg;
+  }
+}
+
+.gradient-border-component {
+  /* Establish a stacking context so the conic gradient stays on the border */
+  position: relative;
+  isolation: isolate;
+}
+
+.gradient-border-auto {
+  animation: gradient-rotate var(--animation-duration, 5s) linear infinite;
+}
+
+.gradient-border-hover {
+  /* Static until hover starts the rotation */
+  animation: none;
+}
+.gradient-border-hover:hover {
+  animation: gradient-rotate var(--animation-duration, 5s) linear infinite;
+}
+
+.gradient-border-stop-hover {
+  /* Auto-rotate, but pause when the visitor hovers */
+  animation: gradient-rotate var(--animation-duration, 5s) linear infinite;
+}
+.gradient-border-stop-hover:hover {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gradient-border-auto,
+  .gradient-border-hover:hover,
+  .gradient-border-stop-hover {
+    animation: none;
+  }
+}

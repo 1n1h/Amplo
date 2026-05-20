@@ -47,7 +47,14 @@ export const POST: APIRoute = async ({ request, url }) => {
   let sheetTimestamp: string | null = null;
   let sheetError: Error | null = null;
   try {
-    const { timestamp } = await appendLead(lead);
+    // Legacy contact form has no industry field — map the message into Notes.
+    const { timestamp } = await appendLead({
+      name: lead.name,
+      email: lead.email,
+      mobile: lead.mobile,
+      industry: '',
+      notes: lead.message,
+    });
     sheetTimestamp = timestamp;
   } catch (err) {
     sheetError = err instanceof Error ? err : new Error(String(err));

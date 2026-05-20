@@ -17,10 +17,9 @@ function rowToCsv(r: LeadRow): string {
     r.name,
     r.email,
     r.mobile,
-    r.message,
-    r.status,
+    r.industry,
     r.notes,
-    r.lastUpdated,
+    r.status,
     r.appointment,
   ]
     .map(csvEscape)
@@ -42,7 +41,8 @@ export const GET: APIRoute = async ({ url }) => {
         (r) =>
           r.name.toLowerCase().includes(q) ||
           r.email.toLowerCase().includes(q) ||
-          r.message.toLowerCase().includes(q)
+          r.industry.toLowerCase().includes(q) ||
+          r.notes.toLowerCase().includes(q)
       );
     }
 
@@ -51,10 +51,9 @@ export const GET: APIRoute = async ({ url }) => {
       'Name',
       'Email',
       'Mobile',
-      'Message',
+      'Industry',
+      'More',
       'Status',
-      'Notes',
-      'Last Updated',
       'Appointment',
     ].join(',');
     const csv = [header, ...filtered.map(rowToCsv)].join('\r\n');

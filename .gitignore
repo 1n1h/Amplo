@@ -22,11 +22,11 @@ pnpm-debug.log*
 # Vercel
 .vercel/
 
-# Local secrets / scratch notes — keep out of git
-md_instructions/LOCAL_env.txt
-md_instructions/Amplo_Consulting_Claude_Code_Handoff.md
-md_instructions/Amplo_Form_and_Admin_Addendum.md
-md_instructions/Site_Content.md
+# Local secrets / scratch notes — entire folder kept out of git
+md_instructions/
+
+# Claude Code local settings
+.claude/
 
 # macOS-specific files
 .DS_Store

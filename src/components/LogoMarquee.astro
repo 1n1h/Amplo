@@ -1,0 +1,116 @@
+---
+// Inverted scroll marquee — navy bg + gold letters, scrolls right (the
+// existing ScrollMarquee scrolls left). Showcases companies and institutions
+// Roger has worked with. Logos are filtered to white so they sit cleanly
+// against the navy band, regardless of source color.
+
+interface CompanyEntry {
+  name: string;
+  logo?: string; // path under /public; omit for text-only entries
+  /** Visual scale-up — keeps layout the same but makes the artwork bigger
+   * within its frame. Use for logos whose source canvas has heavy padding. */
+  big?: boolean;
+}
+
+const companies: CompanyEntry[] = [
+  { name: 'Fanbasis', logo: '/logos/fanbasis.png', big: true },
+  { name: 'Creatify', logo: '/logos/creativify.png', big: true },
+  { name: 'GC. Angel Investors', logo: '/logos/GOLD_COAST.png' },
+  { name: 'UM Law', logo: '/logos/UM_LAW.png', big: true },
+  { name: 'Userlytics', logo: '/logos/User_Lytics.png' },
+  { name: 'Group Book', logo: '/logos/GROUP_BOOK.png' },
+  { name: 'Y Combinator', logo: '/logos/Y_COMBINATOR_LOGO.png', big: true },
+  { name: 'Kelley School of Business', logo: '/logos/KELLY_BUSINESS.png', big: true },
+  { name: 'Zeta Beta Tau Foundation', logo: '/logos/ZETA_BETA_TAU_FOUNDATION.png', big: true },
+];
+
+// Duplicate so the marquee loop is seamless.
+const loop = [...companies, ...companies];
+---
+
+<section
+  aria-label="Companies Roger has worked with"
+  class="logo-marquee bg-[var(--color-navy)] overflow-hidden"
+>
+  <div class="logo-track-wrap py-10">
+    <ul class="logo-track flex items-center gap-14 whitespace-nowrap" aria-label="Trusted by">
+      {
+        loop.map((c, i) => (
+          <li class="flex items-center gap-14">
+            <div class="flex items-center gap-4">
+              {c.logo ? (
+                <img
+                  src={c.logo}
+                  alt={c.name}
+                  class:list={['logo-img', c.big && 'is-big']}
+                  loading="lazy"
+                  decoding="async"
+                />
+              ) : null}
+              <span class="text-[0.85rem] font-semibold uppercase tracking-[0.18em] text-[var(--color-gold)]">
+                {c.name}
+              </span>
+            </div>
+            {i < loop.length - 1 && (
+              <span
+                class="inline-block h-px w-10 bg-[var(--color-gold)]/40"
+                aria-hidden="true"
+              />
+            )}
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .logo-marquee {
+    --duration: 65s;
+    position: relative;
+  }
+  .logo-track {
+    width: max-content;
+    /* Start shifted left, animate to 0 — content moves RIGHT (opposite of
+       the ScrollMarquee). */
+    animation: logo-scroll var(--duration) linear infinite;
+    will-change: transform;
+  }
+  .logo-marquee:hover .logo-track {
+    animation-play-state: paused;
+  }
+  @keyframes logo-scroll {
+    from {
+      transform: translateX(-50%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+
+  /* Uniform 64px height, natural width per logo's aspect ratio. Filtered
+     to white so any source color renders consistently on the navy band. */
+  .logo-img {
+    height: 64px;
+    width: auto;
+    max-height: 64px;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+    opacity: 0.92;
+    flex-shrink: 0;
+    transform-origin: center;
+    transition: transform 200ms ease;
+  }
+  /* Logos whose source artwork has heavy padding inside their canvas — scale
+     up visually only. Does not affect layout flow, so the marquee container
+     height stays exactly the same. */
+  .logo-img.is-big {
+    transform: scale(1.45);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .logo-track {
+      animation: none;
+    }
+  }
+</style>

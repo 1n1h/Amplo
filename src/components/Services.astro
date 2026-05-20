@@ -1,21 +1,23 @@
 ---
 import Eyebrow from './Eyebrow.astro';
 import ServiceCard from './ServiceCard.astro';
+import { InteractiveLight } from './InteractiveLight';
 import services from '../content/services.json';
 ---
 
-<section id="services" class="py-24 md:py-40">
-  <div class="container-site">
+<section id="services" class="relative overflow-hidden py-24 md:py-40">
+  <InteractiveLight client:visible shineColor="#c9a961" lampHeight="6vh" lampWidth="6vh" transitionDuration={720} opacity={0.5} />
+  <div class="relative container-site">
     <div class="mx-auto max-w-3xl text-center">
       <div class="fade-up">
         <Eyebrow label="What We Do" variant="flanked" align="center" />
       </div>
 
       <h2
-        class="fade-up mt-8 text-[clamp(2rem,5vw,3.5rem)] leading-[1.08]"
+        class="fade-up section-heading mt-8"
         style="transition-delay: 60ms;"
       >
-        Tailored solutions designed to drive your <em>growth and success.</em>
+        Quick problems. <em>Faster fixes.</em>
       </h2>
     </div>
 

@@ -184,7 +184,9 @@ export interface BookingInput {
   name: string;
   email: string;
   mobile: string;
-  message: string;
+  industry: string;
+  /** Free-text notes (e.g. "Tell us more" field when industry = Other). */
+  notes: string;
   startISO: string;
 }
 
@@ -210,16 +212,19 @@ export function validateBookingInput(input: Record<string, unknown>): BookingVal
   const name = trimStr(input.name, 200);
   const email = trimStr(input.email, 320).toLowerCase();
   const mobile = trimStr(input.mobile, 50);
-  const message = trimStr(input.message, 5000);
+  const industry = trimStr(input.industry, 200);
+  const notes = trimStr(input.notes, 5000);
   const startISO = trimStr(input.startISO, 40);
 
   if (!name) return { ok: false, error: 'Please enter your name.' };
   if (!email) return { ok: false, error: 'Please enter your email.' };
   if (!EMAIL_RE.test(email)) return { ok: false, error: 'Please enter a valid email address.' };
+  if (!mobile) return { ok: false, error: 'Please enter your mobile number.' };
+  if (!industry) return { ok: false, error: 'Please select your industry.' };
   if (!startISO) return { ok: false, error: 'Please pick a time.' };
 
   const startDate = new Date(startISO);
   if (Number.isNaN(startDate.getTime())) return { ok: false, error: 'Invalid time selected.' };
 
-  return { ok: true, data: { name, email, mobile, message, startISO: startDate.toISOString() } };
+  return { ok: true, data: { name, email, mobile, industry, notes, startISO: startDate.toISOString() } };
 }

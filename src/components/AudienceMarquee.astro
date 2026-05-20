@@ -1,0 +1,97 @@
+---
+// Gold marquee that maps each service to the kind of person/company who
+// needs it. Mirrors the visual treatment of ScrollMarquee (gold bg, navy
+// text, scroll-left) but with a service → audience pairing structure.
+const pairs = [
+  { service: 'Compliance', audience: 'Startup Founder' },
+  { service: 'Data Protection', audience: 'App Developer' },
+  { service: 'Risk Management', audience: 'Venture Capital' },
+  { service: 'Governance', audience: 'SaaS CEO' },
+  { service: 'IP & Contracts', audience: 'Solo Founder' },
+  { service: 'Regulatory Advisory', audience: 'Fintech Builder' },
+  { service: 'Privacy Audits', audience: 'Data-Driven Apps' },
+  { service: 'Vendor Contracts', audience: 'Marketplace Operators' },
+];
+
+// Duplicate so the marquee loop is seamless.
+const loop = [...pairs, ...pairs];
+---
+
+<section
+  aria-label="Who Amplo serves"
+  class="audience-marquee border-y border-[var(--color-gold)]/40 bg-[var(--color-gold)]/95 overflow-hidden"
+>
+  <div class="aud-track-wrap py-4">
+    <ul class="aud-track flex items-center gap-10 whitespace-nowrap" aria-label="Service to audience pairings">
+      {
+        loop.map((p, i) => (
+          <li class="flex items-center gap-10">
+            <span class="aud-pair">
+              <span class="aud-service">{p.service}</span>
+              <span class="aud-arrow" aria-hidden="true">→</span>
+              <span class="aud-audience">{p.audience}</span>
+            </span>
+            {i < loop.length - 1 && (
+              <span
+                class="inline-block h-px w-10 bg-[var(--color-navy)]/40"
+                aria-hidden="true"
+              />
+            )}
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .audience-marquee {
+    --duration: 55s;
+    position: relative;
+  }
+  .aud-track {
+    width: max-content;
+    /* Scroll left — content moves from right to left, same direction as the
+       header ScrollMarquee. */
+    animation: aud-scroll var(--duration) linear infinite;
+    will-change: transform;
+  }
+  .audience-marquee:hover .aud-track {
+    animation-play-state: paused;
+  }
+  @keyframes aud-scroll {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  .aud-pair {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-navy);
+  }
+  .aud-arrow {
+    color: color-mix(in oklab, var(--color-navy) 55%, transparent);
+    font-weight: 500;
+    font-size: 0.85rem;
+    line-height: 1;
+  }
+  .aud-audience {
+    /* Slight emphasis on the audience side so the "who" reads as the focal point */
+    font-weight: 700;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .aud-track {
+      animation: none;
+    }
+  }
+</style>

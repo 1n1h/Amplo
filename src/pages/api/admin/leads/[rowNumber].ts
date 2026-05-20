@@ -38,8 +38,8 @@ export const PATCH: APIRoute = async ({ params, request }) => {
   }
 
   try {
-    const { lastUpdated } = await updateLead(rowNumber, updates);
-    return json(200, { ok: true, lastUpdated });
+    await updateLead(rowNumber, updates);
+    return json(200, { ok: true });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     console.error('[admin/lead update] failed:', message);

@@ -1,133 +1,64 @@
 ---
 import Eyebrow from './Eyebrow.astro';
 import reviews from '../content/reviews.json';
-
-function initials(name: string): string {
-  const parts = name.trim().split(/\s+/);
-  if (parts.length === 0) return '';
-  if (parts.length === 1) return parts[0]!.slice(0, 2).toUpperCase();
-  return (parts[0]![0]! + parts[parts.length - 1]![0]!).toUpperCase();
-}
-
-// Duplicate the list so the marquee loops seamlessly.
-const loop = [...reviews, ...reviews];
+import { TestimonialStack } from './TestimonialStack';
 ---
 
-<section id="reviews" class="py-24 md:py-32 overflow-hidden">
-  <div class="container-site">
+<section id="reviews" class="on-cream relative py-24 md:py-32 overflow-hidden">
+  <!-- Soft gold radial glow centered behind the card stack. Adapted from the
+       background-components.tsx pattern (radial-gradient + multiply blend),
+       retoned to brand gold so it halos the active testimonial card. -->
+  <div aria-hidden="true" class="reviews-glow"></div>
+
+  <div class="relative container-site">
     <div class="mx-auto max-w-3xl text-center">
       <div class="fade-up">
         <Eyebrow label="Testimonials" variant="flanked" align="center" />
       </div>
 
       <h2
-        class="fade-up mt-8 text-[clamp(2rem,5vw,3.5rem)] leading-[1.08]"
+        class="fade-up section-heading mt-8"
         style="transition-delay: 60ms;"
       >
-        Notes from founders we've <em>stood beside.</em>
+        What founders <em>say.</em>
       </h2>
     </div>
   </div>
 
-  <div class="fade-up mt-14 reviews-marquee relative" style="transition-delay: 120ms;">
-    <ul class="reviews-track flex items-stretch gap-6 px-6 md:px-10" role="list">
-      {
-        loop.map((r, i) => (
-          <li
-            class="review-card shrink-0 w-[88vw] sm:w-[420px] bg-[var(--color-navy-elevated)] rounded-md p-7 md:p-8 flex flex-col"
-            aria-hidden={i >= reviews.length ? 'true' : 'false'}
-          >
-            <span
-              aria-hidden="true"
-              class="block h-1 w-10 bg-[var(--color-gold)] -mt-7 md:-mt-8 mb-5"
-              style="margin-left: -1.75rem;"
-            />
-
-            <div class="flex items-center gap-1" aria-label={`Rated ${r.rating} out of 5`}>
-              {Array.from({ length: r.rating }).map(() => (
-                <svg
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  class="w-4 h-4 text-[var(--color-gold)]"
-                  aria-hidden="true"
-                >
-                  <path d="M10 1.5l2.61 5.29 5.84.85-4.22 4.12.99 5.81L10 14.84l-5.22 2.74.99-5.81L1.55 7.64l5.84-.85L10 1.5z" />
-                </svg>
-              ))}
-            </div>
-
-            <p class="mt-5 text-[0.95rem] md:text-base leading-relaxed text-[var(--color-cream)] flex-1">
-              {r.quote}
-            </p>
-
-            <div class="mt-6 pt-5 border-t border-[var(--color-gold)]/20 flex items-center gap-4">
-              <span
-                aria-hidden="true"
-                class="inline-flex items-center justify-center h-11 w-11 shrink-0 rounded-full bg-[var(--color-gold)] text-[var(--color-navy)] font-medium text-sm tracking-wide"
-                style="font-family: var(--font-display);"
-              >
-                {initials(r.name)}
-              </span>
-              <div class="min-w-0">
-                <p class="text-sm font-medium text-[var(--color-cream)] truncate">{r.name}</p>
-                <p class="text-[0.7rem] uppercase tracking-[0.15em] text-[var(--color-gold)]/80 truncate">
-                  {r.role}
-                </p>
-                <p class="text-xs text-[var(--color-text-muted)] truncate">{r.company}</p>
-              </div>
-            </div>
-          </li>
-        ))
-      }
-    </ul>
-
-    <div
-      aria-hidden="true"
-      class="pointer-events-none absolute inset-y-0 left-0 w-16 md:w-24"
-      style="background: linear-gradient(to right, var(--color-navy), transparent);"
-    >
-    </div>
-    <div
-      aria-hidden="true"
-      class="pointer-events-none absolute inset-y-0 right-0 w-16 md:w-24"
-      style="background: linear-gradient(to left, var(--color-navy), transparent);"
-    >
-    </div>
+  <div class="relative fade-up mt-16" style="transition-delay: 120ms;">
+    <TestimonialStack client:visible items={reviews} />
   </div>
 </section>
 
 <style>
-  .reviews-marquee {
-    --duration: 180s;
-    overflow: hidden;
+  /* Cream section override: flip foreground / background palette. */
+  .on-cream {
+    background: var(--color-cream);
+    color: var(--color-navy);
   }
-  .reviews-track {
-    width: max-content;
-    animation: reviews-scroll var(--duration) linear infinite;
-    will-change: transform;
+  .on-cream h2 {
+    color: var(--color-navy);
   }
-  .reviews-marquee:hover .reviews-track,
-  .reviews-marquee:focus-within .reviews-track {
-    animation-play-state: paused;
+  .on-cream h2 em {
+    color: var(--color-gold);
+    font-style: italic;
+    font-weight: 500;
   }
-  .review-card {
-    box-shadow: 0 0 0 1px color-mix(in oklab, var(--color-cream) 6%, transparent);
-  }
-  @keyframes reviews-scroll {
-    from {
-      transform: translateX(0);
-    }
-    to {
-      transform: translateX(-50%);
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .reviews-track {
-      animation: none;
-    }
-    .reviews-marquee {
-      overflow-x: auto;
-      scrollbar-width: thin;
-    }
+
+  /* Soft gold spotlight behind the testimonial stack. Multiply blend mode
+     mixes the gold into the cream base — creates a warm halo without a
+     hard color edge. */
+  .reviews-glow {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image: radial-gradient(
+      ellipse 70% 60% at 50% 55%,
+      var(--color-gold) 0%,
+      transparent 70%
+    );
+    opacity: 0.45;
+    mix-blend-mode: multiply;
   }
 </style>

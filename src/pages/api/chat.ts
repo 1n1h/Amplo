@@ -42,31 +42,32 @@ function pickModel(): LanguageModel | null {
 const SYSTEM_PROMPT = `You are Amplo AI, the assistant on amploconsulting.com.
 
 About Amplo Consulting:
-- A Miami-based legal, compliance, and business strategy firm for startups and technology companies.
-- Tagline: "We help companies grow with purpose."
-- Six service areas:
-  1. Compliance Assessments — data protection, privacy, and industry-specific compliance audits.
-  2. Governance Advisory — frameworks, policies, and procedures aligned to legal/regulatory obligations.
-  3. Risk Management — proactive identification and mitigation of operational, legal, and strategic risk.
-  4. Regulatory Compliance — hands-on support navigating complex regulatory environments.
-  5. Data Protection — privacy-by-design audits and frameworks (GDPR, CCPA, etc.) for data-intensive platforms.
-  6. Legal Contracts & IP — drafting/negotiating contracts, trademarks, copyrights, patents.
+- A Miami-based firm built for high-growth tech companies and creator businesses.
+- Tagline: "Focus on building. We'll handle the rest."
+- Service areas:
+  1. Stay Compliant: data protection, privacy, and industry-specific compliance audits.
+  2. Run It Like a Real Company: governance frameworks, policies, and decision structures.
+  3. Stop Risks Before They Hit: proactive risk identification across operations, contracts, and exposure.
+  4. Navigate the Rules: hands-on support through complex regulatory environments.
+  5. Protect User Data: privacy-by-design audits (GDPR, CCPA, and more) for data-intensive platforms.
+  6. Lock Down Your IP: contract drafting/negotiation, trademarks, copyrights, patents.
 
 How to help visitors:
-- Be brief, warm, and editorial. Match the firm's polished tone — no slang, no hype, no emoji.
+- Be brief, warm, and editorial. Match the firm's polished tone. No slang, no hype, no emoji.
 - Answer questions about services concisely. If asked something outside the firm's scope, say so and offer to take a message via Roger@amploconsulting.com.
+- IMPORTANT: Never use em dashes (—) in your responses. Use commas, periods, or restructure the sentence. Em dashes make replies feel AI-generated.
 
-Booking — IMPORTANT RULES:
+Booking, IMPORTANT RULES:
 - To check availability, you MUST call the getAvailability tool. Never invent slots or claim a date is open without calling the tool.
 - To book a meeting, you MUST call the bookAppointment tool. Never confirm a booking unless that tool returned ok:true. If you tell the visitor "you're booked" without calling the tool, they will not actually be on the calendar.
-- Required fields for bookAppointment: startISO (from getAvailability), name, email, message. Mobile is optional.
-- If the visitor hasn't given you one of the required fields, ask for it before calling the tool.
-- Booking window: 30-minute intro calls only, Monday–Friday 9 AM – 6 PM Eastern, up to 45 days in advance.
+- Required fields for bookAppointment: startISO (from getAvailability), name, email, mobile, and industry. The notes field is optional and only included when the visitor shares specifics.
+- If the visitor hasn't given you one of the required fields, ask for it before calling the tool. Ask in plain language, like "What industry are you in?" rather than presenting a long dropdown.
+- Booking window: 30-minute intro calls only, Monday through Friday 9 AM to 6 PM Eastern, up to 45 days in advance.
 - After bookAppointment returns ok:true, confirm the exact date/time it returned (the "when" field), then tell them to check their email for a calendar attachment.
 - If bookAppointment returns ok:false, share the error message and offer to try a different slot.
 
 Other guardrails:
-- Never invent prices, fee schedules, or attorney-client claims. Amplo Consulting is a consulting firm, not a law firm — do not provide legal advice.
+- Never invent prices, fee schedules, or attorney-client claims. Amplo Consulting is a consulting firm, not a law firm. Do not provide legal advice.
 - If you don't know something, say so and offer to connect them with Roger@amploconsulting.com.`;
 
 function json(status: number, body: unknown): Response {
@@ -128,13 +129,14 @@ const getAvailabilityTool = tool({
 
 const bookAppointmentTool = tool({
   description:
-    'Book a 30-minute Amplo Consulting intro call. Only call this once you have the visitor\'s name, email, and a brief message. The startISO must be one of the available slots returned by getAvailability.',
+    "Book a 30-minute Amplo Consulting intro call. Only call this once you have the visitor's name, email, mobile, and industry. The startISO must be one of the available slots returned by getAvailability.",
   inputSchema: jsonSchema<{
     startISO: string;
     name: string;
     email: string;
-    mobile?: string;
-    message: string;
+    mobile: string;
+    industry: string;
+    notes?: string;
   }>({
     type: 'object',
     properties: {
@@ -144,13 +146,19 @@ const bookAppointmentTool = tool({
       },
       name: { type: 'string', description: 'Visitor full name.' },
       email: { type: 'string', description: 'Visitor email address.' },
-      mobile: { type: 'string', description: 'Visitor mobile phone (optional).' },
-      message: {
+      mobile: { type: 'string', description: 'Visitor mobile phone.' },
+      industry: {
         type: 'string',
-        description: 'One- or two-sentence summary of what they want to discuss.',
+        description:
+          "Visitor's industry or role. Examples: SaaS / Software, Fintech, E-commerce / D2C, Influencer / Creator, Marketing / Advertising, Sales / Revenue Ops, Healthtech, AI / ML, Edtech, Real Estate / Proptech, Crypto / Web3, Media / Publishing, Venture Capital / Investing, Other.",
+      },
+      notes: {
+        type: 'string',
+        description:
+          "Optional one or two sentence note about what the visitor wants to discuss. Only include if they shared specifics.",
       },
     },
-    required: ['startISO', 'name', 'email', 'message'],
+    required: ['startISO', 'name', 'email', 'mobile', 'industry'],
     additionalProperties: false,
   }),
   execute: async (input) => {
@@ -159,11 +167,12 @@ const bookAppointmentTool = tool({
       name: input.name,
       email: input.email,
       hasMobile: !!input.mobile,
-      messageLen: input.message?.length ?? 0,
+      industry: input.industry,
+      notesLen: input.notes?.length ?? 0,
     });
     const result = await performBooking({
       ...input,
-      mobile: input.mobile ?? '',
+      notes: input.notes ?? '',
     });
     if (!result.ok) {
       console.log('[chat:tool] bookAppointment failed', result.error);
