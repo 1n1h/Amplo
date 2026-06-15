@@ -1,6 +1,5 @@
 ---
 import Eyebrow from './Eyebrow.astro';
-import { InteractiveLight } from './InteractiveLight';
 
 // Split each phrase into words so we can stagger their reveal with CSS variables.
 // Source case is preserved for readability; CSS renders this all-caps.
@@ -16,10 +15,7 @@ const allWords = [...phraseOne, ...phraseTwo];
     radial-gradient(ellipse 90% 65% at 50% 18%, color-mix(in oklab, var(--color-navy-elevated) 55%, transparent) 0%, transparent 65%),
     linear-gradient(to bottom, var(--color-navy) 0%, #060f24 100%);"
 >
-  <!-- Cursor-tracked gold light. Sits below the static blur blobs and content. -->
-  <InteractiveLight client:visible shineColor="#c9a961" lampHeight="6vh" lampWidth="6vh" transitionDuration={720} opacity={0.5} />
-
-  <!-- Static atmospheric blur blobs for visitors with reduced motion / no JS. -->
+  <!-- Static atmospheric blur blobs. -->
   <div aria-hidden="true" class="pointer-events-none absolute inset-0 -z-10">
     <div
       class="absolute -top-40 -right-40 h-[500px] w-[500px] rounded-full blur-[120px]"
